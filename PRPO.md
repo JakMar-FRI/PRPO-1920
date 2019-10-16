@@ -41,6 +41,24 @@ Vrste uporbniškega vmesnika:
     * Slabosti
         * API - komunikacija med komponentami (ozko grlo)
 
+## IT arhitektura
+### Software platforma
+Skupek strežnikov storitev, ki jih za poganjanje aplikacije potrebujemo:
+*   web server
+*   file server
+*   database server (DBMS)
+*   IAM - identity server (npr. OAuth2)
+
+### Namestitev aplikacije
+**Monolitna** namestitev - aplikacijo namestimo v končni sistem v enem kosu
+**Mikrostoritvena** namestitev - vsako komponento posebej namestimo (*npr. z uporabo Dockerja*)
+
+>### Java EE
+>| vrsta | datoteke |
+>|---|---|
+>|Java SE | JAR |
+>|Java EE *zdaj Jakarte EE* | WAR, EAR |
+
 
 >### Skalabilnost
 >#### Vertikalna skalabilnost
@@ -49,3 +67,58 @@ Vrste uporbniškega vmesnika:
 >Zmožnost poganjanja večih instanc posamezne komponente (potreno pravilno programiranje)
 
 >### Cap teorem
+
+## Upravljanje z odvisnostmi
+Uporabljamo za avtomatizacijo režije:
+*   upravljanje z odvisnostmi
+*   build cycle - priprava za namestitev aplikacije
+Primeri: *Maven*, Gradle.
+Project Object Model (POM)
+
+> ## Okolje aplikacije
+1.  **Razvojno okolje** (DEV)
+2.  **Testno okolje** - testira QA
+3.  **User testno okolje** - še eno testno okolje, testirajo končni uporabniki
+4.  **Produkcijsko okolje** - okolje, kjer se izvaja aplikacija
+
+# Maven
+> ## Verzioniranje
+> **a.b.c-okolje** *(npr. 1.0.0)*
+> * *a* - major
+> * *b* - minor
+> * *c* - release
+> * *okolje* - SNAPSHOT (testno okolje)
+
+## Maven življenjski cikli
+*   **default** - namenjen korakom buildanja in nameščanja, najpomembnejši cilji (izvedejo se tudi vse predhodne faze):
+    *   validate
+    *   compile (.jar file iz artifactID in verzije)
+    *   package - naredil compile in sestavi jar file
+*   **clean** - čiščenje za seboj (predhodne builde)
+    *   pre-clean
+    *   clean
+    *   post-clean
+*   **site** (oblikovanje dokumentacije)
+    *   pre-site
+    *   site
+    *   post-site
+    *   site-deploy
+
+Building iz komandne vrstice:
+```java
+    mvn clean
+    //--
+
+    // dobimo .class file
+    mvn compile
+    //--
+
+    // compile & .jar file
+    mvn package
+    //--
+
+    mvn run
+
+    //kombinacija dveh ciljev
+    mvn cleane package
+```
