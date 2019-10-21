@@ -70,6 +70,22 @@ Skupek strežnikov storitev, ki jih za poganjanje aplikacije potrebujemo:
 >Zmožnost poganjanja večih instanc posamezne komponente (potreno pravilno programiranje)
 
 >### Cap teorem
+> C - transakcijska konsistentnost podatkov
+> A - razpoložjivost podatkov v konsistentni obliki v vseh vozliščih
+> P - particijska enostavnost: enostavnost horizontalne skalabilnosti
+> izbereš lahko največ dve od treh
+> ![](./pics/CAP001.png)
+
+> *"Če zaradi tega vržete puško v koruzo in ne govorite z Metko, je dobro, da hodite na ta predavanja"*
+> Jurič, 21.10.19
+
+### Vrste SQL baz
+#### ACID baze
+**A**tomicity, **C**onsistency, **I**solation, **D**urability
+(Atomarnost, Konsistentnos, Izolacija, )
+Običajno SQL relacijske baze
+#### BASE baze
+Pomembnejša je razpoložljivost od razpoložjivosti
 
 ## Upravljanje z odvisnostmi
 Uporabljamo za avtomatizacijo režije:
@@ -175,3 +191,69 @@ Možnosti povezave na podatkovno bazo:
 
 > *"Kolegice in kolegi*\
 > Jurič
+
+**RDBS**
+**TPM**
+
+## Dobre prakse uporabe JDBC
+### Ne-mešanje poslovne logike in JDBC
+
+Ne delaj tega
+```java
+public boolean preveriStanjeUp (...) {
+    //JDB koda
+    ...
+    //
+
+    //poslovna logika
+    ...
+    //
+}
+```
+
+Delaj tako:
+```java
+public boolean preveriStanjeUp (...) {
+    //posebej narediš DAO (DataAccessObject)
+    getStatus(...);
+
+    //naprej pišemo poslovno logiko
+    ...
+}
+```
+
+V DAO imamo tudi ```getUporabnik()```, kjer dobimo "pravega uporabnika". Za ta namen uporabimo ```Java Zrno (Java Bean)``` s prilagojenimi ```get``` in ```set``` metodami. Takšnemu zrnu pravimo ```DTO (Data Transfer Object)```.
+
+Zakaj?
+*   razdelimo odgovornost
+*   lahko spreminjamo podatkovno bazo brez spreminjanja poslovne logike
+
+## DAO (Data Access Object)
+
+### DAO vzorec
+
+![](./pics/DAO001.jpg)
+
+### Generiranje baznega DAO
+```java
+public interface BaseDao {
+
+}
+```
+
+> 
+> ## Serializacija
+> > V eni JVM se objekti pošiljajo kot *pass-by-reference*
+> Avomatski postopek pretvarjanja iz stanja objekta v tok podatkov za pošiljanje objekta med različnimi JVM v omrežju. Obstajata dve vrsti serializacije:
+> *   binarna serializacija (podpira npr. ciklične grafe)
+> *   markup serializacija (JSON ali ??) - pretvarjanje direktno iz in v objekte > (podpira zgolj hierarhične podatkovne modele)
+> 
+> ```java
+> 
+> public Razred seriazibilen implements Serializable  {
+> 
+> }
+> 
+> ```
+
+# Java Persistence API
