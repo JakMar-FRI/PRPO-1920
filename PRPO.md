@@ -53,6 +53,9 @@ Skupek strežnikov storitev, ki jih za poganjanje aplikacije potrebujemo:
 **Monolitna** namestitev - aplikacijo namestimo v končni sistem v enem kosu
 **Mikrostoritvena** namestitev - vsako komponento posebej namestimo (*npr. z uporabo Dockerja*)
 
+> *Űber*\
+> Jurič
+
 >### Java EE
 >| vrsta | datoteke |
 >|---|---|
@@ -122,3 +125,53 @@ Building iz komandne vrstice:
     //kombinacija dveh ciljev
     mvn cleane package
 ```
+
+# JDBC - Java Database Connectivity
+
+Pošiljanje SQL stavkov podatkovni bazi:
+*   **Statement** - pošilja navaden SQL, ni dobra praksa, ker je navaden String
+*   **Prepared statement** - pošilja navaden SQL, predpošiljanje, lahko si PB pripravi način izvajanja, chekira za vdore
+*   **Callable statement** - PL/SQL (ni dobra praksa)
+
+## Koraki pri uporabi JDBC
+### Korak 1: Nalaganje gonilnika
+
+### Korak 2: Sestvljanje URL niza za povezavo na bazo
+
+### Korak 3: Vzpostavljanje povezave
+
+
+### Korak 4: Kreiranje objekta ```Statement```, ```PreparedStatement``` ali ```CallableStatement```
+
+### Korak 5: Izvršitev SQL povpraševanj ali shranjenih procedur
+
+### Korak 6: Obdelava rezultatov
+
+Če ne poznamo strukture tabele, jo pridobimo s klicem metode ```getMetaData()```.
+
+### Korak 7: Zapiranje povezave
+
+> *"Imate prijaznega asistenta letos.... šalim se malo"*\
+> Jurič, 21.10.19
+
+## JDBC Connection Pool
+
+Možnosti povezave na podatkovno bazo:
+1.  Vsaka mikrostoritev ima svojo povezavo (slaba izkoriščenost povezav)
+2.  Koncept bazen povezav - določeno število v naprej prirpavljenih povezav na PB. Vsaka storitev se poveže na connection pool. Storitev ima občutek, da ima svojo povezavo, v resnici bazen sproti določa povezavo, glede na potrebo storitve.
+
+![](./pics/JDBC001.png)
+*Connection Pool == **DataSource*** kje se nahaja programerja ne zanima (mikro storitev, PB...)
+
+#### Data Source
+**JNDI** ime Java Naming and Directory Interface
+
+**LDAP** ?, JDNI je abstrakcija LDAP
+
+1.  Iz LDAP pridobimo povezavo do Data Sourca (naredimo JDNI lookup, CDX lookup)
+
+> *"Pasvord"*\
+> Jurič
+
+> *"Kolegice in kolegi*\
+> Jurič
