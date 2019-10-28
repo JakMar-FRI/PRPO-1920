@@ -73,7 +73,7 @@ Skupek strežnikov storitev, ki jih za poganjanje aplikacije potrebujemo:
 > C - transakcijska konsistentnost podatkov
 > A - razpoložjivost podatkov v konsistentni obliki v vseh vozliščih
 > P - particijska enostavnost: enostavnost horizontalne skalabilnosti
-> izbereš lahko največ dve od treh
+> izbereš lahko največ dve od treh\
 > ![](./pics/CAP001.png)
 
 > *"Če zaradi tega vržete puško v koruzo in ne govorite z Metko, je dobro, da hodite na ta predavanja"*
@@ -257,3 +257,12 @@ public interface BaseDao {
 > ```
 
 # Java Persistence API
+Namesto, da za vsak objekt napišemo DAO in DTO, ali lahko napišemo samo DTO?\
+![](./pics/003.png)
+
+Za to poskrbi **Objektno-relacijski preslikovalniki (ORM)**, ki obstajajo v večini programskih jeziki. Najbolj poznano je *Hibernate*, v Javi se programski vmesnik imenuje **JPA - Java Persistence Application**.
+
+![](./pics/JPA001.png)
+
+![](./pics/JPA002.jpg)
+
