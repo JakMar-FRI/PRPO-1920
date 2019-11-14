@@ -64,6 +64,9 @@ Skupek strežnikov storitev, ki jih za poganjanje aplikacije potrebujemo:
 
 
 >### Skalabilnost
+> ![](./pics/skalabilnost.png)
+> Skalabilnost nam pove kaj se bo zgodilo z odzivnim časom, ko povečujemo število aktivnih uporabnikov. Težimo k temu, da je skalabilnost sistema čim boljša.
+> ![](./pics/skalabilnost001.png)
 >#### Vertikalna skalabilnost
 >Povečujemo strojne zmogljivosti aplikacije (CPU, RAM, network)
 >#### Horizontalna skalabilnost
@@ -108,6 +111,61 @@ Project Object Model (POM)
 > * *c* - release
 > * *okolje* - SNAPSHOT (testno okolje)
 
+## Prednosti uporabe Maven
+*   boljša vidnost in transparentnost razvojnega procesa
+*   apliciranje splošno sprejetih dobrih praks (verzioniranje)
+*   stndarizacija (enotna struktura projektov)
+*   upravljanje z odvisnostmi
+*   samodejno generiranje spletne strani in dokumentacije
+
+## POM - Project Object Model
+V datoteki **pom.xml** definiramo:
+| lastnost | definicija |
+|--|--|
+|naziv projekta| `<name>` |
+|verzija|`<version>`|
+|odvisnosti|`<dependencies><dependency>`|
+|cilji (goals)||
+|vtičniki (plugins)||
+|metapodatki||
+
+*   V `pom.xml` datoteki so obvezni podatki `groupID`, `artifactId`, `version` in `modelVersion`.
+*   Lahko uporabljamo koncept dedovanja
+*   Vsak `pom.xml` deduje od super POM-a
+
+
+### Primer POM datoteke
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.demo</groupId>
+    <artifactId>projektA</artifactId>
+
+    <!-- privzeto jar (izpuščamo), ostale: war, ejb, rar, ear, pom, custom-->
+    <packaging>war</packaging>
+    <version>0.0.1-SNAPSHOT</version>
+
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit </artifactId>
+            <version>4.8.1</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>
+```
+*Ustvari artefakt `projektA-0.0.1-SNAPSHOT.war`*
+
+### Dedovanje POM datotek
+![](./pics/maven001.jpg)
+*Projekti B, C, D dedujejo verzijo, groupId, način pakiranja in vse druge odvisnosti in konfiguracijo vtičnikov, če nimajo sami drugače definirano.*
+
+### Agregacija modulov
+![](./pics/maven002.jpg)
+*Vsi ukazi nad A se izvdejo tudi nad B, C in D.*
+
 ## Maven življenjski cikli
 *   **default** - namenjen korakom buildanja in nameščanja, najpomembnejši cilji (izvedejo se tudi vse predhodne faze):
     *   validate
@@ -124,7 +182,7 @@ Project Object Model (POM)
     *   site-deploy
 
 Building iz komandne vrstice:
-```java
+```cpp
     mvn clean
     //--
 
@@ -141,6 +199,22 @@ Building iz komandne vrstice:
     //kombinacija dveh ciljev
     mvn cleane package
 ```
+
+## Struktura Maven projekta
+![](./pics/maven003.jpg)
+
+## Prakse pri uporabi Maven
+### Slaba praksa: podvajanje odvisnosti
+Podvajanje odvisnosti za vsak projekt (*npr. kopiranje v mapo lib*).
+### DObra praksa: uporaba binarnega repozitorija
+**Repozitorij** je skupna lokacija za vse odvisnosti projektov, prednosti:
+*   obstaja samo ena kopija
+*   odvisnosti so shranjene izven projekta
+*   odvisnosti so definirane v `pom.xml`
+Privzeti oddaljen repozitorij je **maven control** (*repo1.maven.org*), uporabljamo lahko tudi druge. **Organizacijski repozitorij** hrani vse artefakte, ki izboljšujejo varnost in hitrost. **Lokalni repozitorij** predstavlja predpomnilnik za artefakte iz oddaljenih repozitorijev.
+
+## Izdelava dokumentacije
+Spletno stran z dokumentacijo generiramo z uporabo ukaza `mvn site`, spletne strani se nahajajo v mapi `target/site`.
 
 # JDBC - Java Database Connectivity
 
@@ -265,4 +339,194 @@ Za to poskrbi **Objektno-relacijski preslikovalniki (ORM)**, ki obstajajo v več
 ![](./pics/JPA001.png)
 
 ![](./pics/JPA002.jpg)
+
+![](./pics/JPA002.png)
+
+## Anotiranje entitetnih razredov
+
+```@Table``` spreminja privzeto ime tabele (drugače uporabimo ime razreda)\
+```@Column``` spreminja privzeto ime stolpca (drugače uporabimo ime spremenljivke)
+
+```java
+//koda iz slajda 28
+```
+
+### ```@SecondaryTable```
+
+```java
+
+@Entity
+@SecondaryTables
+
+//slajd 29
+
+```
+
+### ```@Id```
+Označuje atribut, ki definira primarni ključ
+
+### ```@Temporal``` "Kalendar"
+
+### ```@Trannsient```
+Spremenljivka, ki je nočemo, da je shranjena v podatkovni bazi.
+
+### ```@Enumerated```
+
+### ```@ElementCollection``` in ```@CollectionTable```
+
+```java
+
+@Entity
+public class Oseba {
+    @Id
+    private String id;
+    private String ime;
+    private String priimek;
+    @ElementCollenction (fetch = FetchType.LAZY) //LAZY ali EAGER
+    @CollectionTable (name = "Zaznamek")
+    @Column (name = "vrednost")
+    private ArrayList <String> zaznamki;
+}
+
+```
+
+## Relacije med entitetami
+
+
+## Dedovanje
+
+## Struktura Java Persistence APIja
+![](./pics/jpa003.png)
+
+> *"Kolegice in kolegi, tako mimogrede"*
+> **Design paterns**
+> Najboljše rešitve nekih tipičnih problemov s katerimi se srečamo pri programiranju.
+>
+>Zbirka *design paternov* **GoF** - *Gang of Four*. [Mogoče ta](https://en.wikipedia.org/wiki/Gang_of_Four), [verjetno ta](https://en.wikipedia.org/wiki/Design_Patterns).
+
+> **UML CLASS DIAGRAM**
+>
+> ![](./pics/UML001.png)
+> spremenljivke in metode lahko izpustimo
+
+# Nivo poslovne logike in CDI
+
+## CDI - Contexts and Dependancy Injection
+1. Zagotavlja kontekst izvajanja - komponente imajo določen življenski cikel in iteracije glede na jasno.definirane in razširljive kontekste
+![](./pics/CDI001.png)
+2. Vstavljanje odvisnosti omogoča vstavljanje referenc na posamezne komponente znotraj aplikacije
+
+### CDI zrna
+So razredi, ki jih instancira, upravlja in vstavlje CDI vsebnik.
+
+## CDI container
+CDI vsebnik skrbi za:
+*   življenski cikel 
+    * vsebnik sam ustvarja nove instance razreda (določamo samo scope - ```reguest, session, application```)
+    ![](./pics/JDC001.jpg)
+*   vstavljanje odvisnosti
+
+![](./pics/CDI002.png)
+
+> *"Kaj bluzi Jurič"*\
+> Jurič, 4.11.2019
+
+## Interceptor
+Metoda, ki omogoča, da se pred ali po izvedbi neke metode izvedemo še neko drugo kodo (metodo) avtomatsko.
+
+```java
+@MojPrestreznik
+public void nekaDrugaMetoda (int id) {
+    //preden se izvede nekaDrugaMetoda se izvede metoda MojPrestreznik
+}
+```
+```MojPrestreznik()``` je definiran v CDI zrnu.
+
+## CRUD ukazi
+**C** - create, **R** - read, **U** - update, **D** - delete ukazi
+
+# Loggiranje v Javi
+
+## Knjižnice, ki podpirajo loggiranje
+*   JUL (Java Util Logger) - že vključena
+*   LOG4J 1 in 2
+*   SLF4J
+
+> *Pol so prišli malo boljši časi, manj stari časi.*
+> Jurišič, 11.11
+
+# REST
+
+## Zgodovinski razvoj vmesnikov
+*   binarni
+    *   RPC
+    *   CORBA
+    *   RMI
+*   text
+    *   SOAP (XML), opišemo z WSDL
+    *   REST (JSON, XML, ali katerikoli MIME), opis ni potreben (ponavadi Swegen/Open API)
+*   gRPC (spet binarni)
+
+![](./pics/rest01.png)
+
+## API in HTTP metode
+
+```java
+vrniSeznamArtiklov();
+izvediPlacilo();
+dodajArtikel();
+posodobiArtikel();
+```
+
+Za dostop do metod uporabimo ```HTTP``` metode:
+
+|HTTP metoda|URL||
+|--|:--:|--|
+|```GET```|```/razmerje```|pridobi seznam razmerij|
+|```GET```|```/razmerje/345```|pridobi razmerje z *DI 345*|
+|```POST```|```/razmerje```|ustvari novo razmerje|
+|```PUT```|```/razmerje/345```|posodobi razmerje z *ID 345*|
+|```DELETE```|```/razmerje/345```|izbriše razmerje z *ID 345*|
+
+*Vire oblikujemo enostavno in učinkovito (grobo zrnato, samostalniki v množini)*
+Ustvarjamo lahko nove pod vire ```GET artikel/345/akcija```
+
+
+| Vir zbirke | Vir instance |
+|--|--|
+|/razmerja|/razmerja/*id_razmerja*|
+
+> *"A se še kaj spomnite slovenščine iz srednje šole? Samostalnik, pridevnik,... Šalim se, saj vem da se"*
+> Jurič
+
+### ```GET``` za branje vira
+
+#### ```GET``` za branje določenega vira
+
+#### `GET` na viru
+
+|Tip|URL|
+|--|--|
+|Ostranjevanje|`/artikli?start=0;offset=0`|
+|Filtracija (iskanje)|`artikli?q='...'`, `artikli?where=vrednost:gte:512`|
+|Sort|`artikli?sort='...'`, `artikli?order=naziv ASC, prioriteta DESC`|
+
+
+### ```POST``` za ustvarjanje
+
+### ```PUT`` za posodabljanje
+
+### ```DELETE``` za brisanje
+
+> ### *Medklic*: minor/major verzije in kompatibilnost za nazaj
+> **Minor** verzije (1.0, 1.1, 1.2) so kompatibilne za nazaj
+> **Major** verzije (1.x, 2.x) niso kompatibilne za nazaj - različne major verzije imajo svoj url ```api.url/v1/...```, ```api.url/v2/...```
+
+## Fornat sporočil
+
+### JSON
+
+#### JSON header
+ Header si zamislimo sami (pri vseh API klicih naj bo *bolj ali manj* enak). V njem definiramo podatke kot so vsi artikli, preneseni artikli, *offset*...
+![](./pics/rest02.png)
 
