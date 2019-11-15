@@ -49,16 +49,28 @@
     - [Naloge DAO](#naloge-dao)
     - [Generiranje baznega DAO](#generiranje-baznega-dao)
 - [Java Persistence API (JPA)](#java-persistence-api-jpa)
+  - [Objektno-relacijska preslikava (ORM)](#objektno-relacijska-preslikava-orm)
+  - [Primerjava arhitekture Java apliakcije](#primerjava-arhitekture-java-apliakcije)
+  - [Struktura Java Persistence APIja (`javax.persistence`)](#struktura-java-persistence-apija-javaxpersistence)
+    - [Razred `Persistence`](#razred-persistence)
+    - [Razred `EntityManagerFactory`](#razred-entitymanagerfactory)
+    - [Razred `EntityManager`](#razred-entitymanager)
+    - [`Entity`](#entity)
+    - [Razred `EntityTransaction`](#razred-entitytransaction)
+    - [Vmesnik `Query`](#vmesnik-query)
+      - [Java Persistence Query Language (JPQL)](#java-persistence-query-language-jpql)
   - [Anotiranje entitetnih razredov](#anotiranje-entitetnih-razredov)
-    - [```@SecondaryTable```](#secondarytable)
-    - [```@Id```](#id)
-    - [```@Temporal``` "Kalendar"](#temporal-%22kalendar%22)
-    - [```@Trannsient```](#trannsient)
-    - [```@Enumerated```](#enumerated)
-    - [```@ElementCollection``` in ```@CollectionTable```](#elementcollection-in-collectiontable)
   - [Relacije med entitetami](#relacije-med-entitetami)
   - [Dedovanje](#dedovanje)
+  - [Osnovne operacije na entitetami](#osnovne-operacije-na-entitetami)
+    - [Kreiranje entitetnih objektov](#kreiranje-entitetnih-objektov)
+    - [Brisanje entitet](#brisanje-entitet)
+    - [Posodabljanje entitet](#posodabljanje-entitet)
+    - [Povpraševanje po entitetah](#povpra%c5%a1evanje-po-entitetah)
+      - [Iskanje entitet](#iskanje-entitet)
+      - [Povpraševanje po entitetah `QueryAPI`](#povpra%c5%a1evanje-po-entitetah-queryapi)
   - [Struktura Java Persistence APIja](#struktura-java-persistence-apija)
+  - [Primerjava pristopov k shranjevanju podatkov v Javi](#primerjava-pristopov-k-shranjevanju-podatkov-v-javi)
 - [Nivo poslovne logike in CDI](#nivo-poslovne-logike-in-cdi)
   - [CDI - Contexts and Dependancy Injection](#cdi---contexts-and-dependancy-injection)
     - [CDI zrna](#cdi-zrna)
@@ -600,11 +612,57 @@ Namesto, da za vsak objekt napišemo DAO in DTO, ali lahko napišemo samo DTO?\
 
 Za to poskrbi **Objektno-relacijski preslikovalniki (ORM)**, ki obstajajo v večini programskih jeziki. Najbolj poznano je *Hibernate*, v Javi se programski vmesnik imenuje **JPA - Java Persistence Application**.
 
+JPA je Javansko ogrodje za upravljanje relacijskih podatkov spodporo tradicionalnim O-O modelirnim konceptom (dedovanje, polimorfizem, enkapsulacija). JPA je specifikacija zahtev, ki jih morajo implementacije upoštevati, vendar ne ponuja (sama po sebi) nobenih funkcionalnosti.
+
 ![](./pics/JPA001.png)
 
+![](./pics/JPA002.png)
+
+## Objektno-relacijska preslikava (ORM)
+Objektno-relacijska preslikava je tehnika za premoščanje razkoraka med objektnim in relacijskim svetom. Namesto ročnega preslikovanja vpeljemo mediatorja, ki to opravlja avtomatsko. Pogoji takšne preslikave so:
+*   **objekti, ne tabele** - povpraševanje je omogočeno z objekti (brez relacijskega jezika), aplikacije so napisane v objektnem modelu
+*   **prepričljivost, ne ignoranca** - orodja za preslikavo niso namenjene skrivanju problemov preslikave
+*   **nevsiljiv, ne prosojen** - ne pričakujemo popolne prosojnosti modela, vendar preslikava ne vpliva na objektni model aplikacije
+*   **obstoječi podatki, novi objekti** - omogočena je uporaba že obstoječih baz (bolj verjetno kot kreiranje nove)
+*   **dovolj, a ne preveč** - pretornik ne vsebuje velike količine nepotrebnih funkcionalnosti, ki rešujejo probleme, ki to niso
+*   **lokalno, a mobilno**
+
+## Primerjava arhitekture Java apliakcije
 ![](./pics/JPA002.jpg)
 
-![](./pics/JPA002.png)
+## Struktura Java Persistence APIja (`javax.persistence`)
+![](./pics/jpa003.jpg)
+
+### Razred `Persistence`
+Vsebuje statične pomožne metode za pridobitev instance `EntityManagerFactory` razreda
+
+### Razred `EntityManagerFactory`
+tovarna za EntityManager-je
+
+### Razred `EntityManager`
+Primarni JPA vmesni, ki ga uporabljajo aplikacije. Vsaka instanca upravlja nabor trajnih objektov. Kadar ga uporabljamo izven vsebnika, je povezan natančno z eno transakcijo.
+
+Je ključni vmesni v JPA, omogoča izvajanje **CRUD** (create, read, update, delete) operacij:
+|ime metode|zagotavlja|
+|---|---|
+|`persist()`|kreiranje objektov|
+|`find()`|pridobivanje objektov|
+|`merge()`|posodabljanje objektov|
+|`remove()`|brisanje objektov|
+
+Ter zagotavlja dostop do povprašvelnega mehanizma: `createQuery()` in `createNamedQuery()`
+
+### `Entity`
+So trajni objekti, ki predstavljajo zapise v podatkovni bazi. V osnovi je entiteta preprost javanski razred z oznako `@Entity` ali ustrezno definicijo v XML deskriptorju.
+
+### Razred `EntityTransaction`
+Omogoča grupiranje operacij nad trajnimi objekti v enote dela, ki se lahko v celoti uspešno zaključijo ali ne uspejo in ohranijo prejšnje stanje podatkovne baze.
+
+### Vmesnik `Query`
+Za iskanje trajnih objektov, ki ustrezajo iskalnim kriterijem. JPA standarizira podporo iskanju z uporabo tako Java Persistence Query Language (JPGL) kot SQL.
+
+#### Java Persistence Query Language (JPQL)
+Objektno orinetirani poizvedovalni jezik (nadomestek SQL). Ima poimenovane (`:named`) ali pozicionirane (`?1`) parametre.
 
 ## Anotiranje entitetnih razredov
 
@@ -612,31 +670,98 @@ Za to poskrbi **Objektno-relacijski preslikovalniki (ORM)**, ki obstajajo v več
 ```@Column``` spreminja privzeto ime stolpca (drugače uporabimo ime spremenljivke)
 
 ```java
-//koda iz slajda 28
+@Entity
+@Table(name = "imeTabele")
+public class Oseba {
+    @Column(name = "idOsebe", length = 10)
+    private String id;
+
+    @Column(name = "davcnaStevilka", length = 9)
+    private String davcnaStevilka;
+}
 ```
 
-### ```@SecondaryTable```
+```@SecondaryTable``` omogoča urejanje podatkov po več tabelah.
 
 ```java
 
 @Entity
-@SecondaryTables
+@SecondaryTables({
+    @SecondaryTable (name = "naslov")
+})
+public class Oseba {
+    @Column(name = "idOsebe", length = 10)
+    private String id;
 
-//slajd 29
+    @Column(name = "naslov")
+    private String naslov;
 
+    @Column(name = "kraj")
+    private String kraj;
+}
 ```
 
-### ```@Id```
-Označuje atribut, ki definira primarni ključ
+```@Id``` označuje atribut, ki definira primarni ključ. `@GeneratedValue` določa strategijo za določanje primarnega ključa pri kreiranju nove entitete (`SEQUENCE`, `IDENTITY`, `TABLE`, `AUTO`).
 
-### ```@Temporal``` "Kalendar"
+```java
+@Entity
+public class Oseba {
+    @Id
+    @GeneratedValue(strategy = GeneratedType.AUTO)
+    private String id;
+}
+```
 
-### ```@Trannsient```
-Spremenljivka, ki je nočemo, da je shranjena v podatkovni bazi.
+```@Temporal``` določa obliko za shranjevanje datuma ali časa (`DATE`, `TIME`, `TIMESTAMP`)
 
-### ```@Enumerated```
+```java
+@Entity
+public class Oseba {
+    @Id
+    private String id;
+    
+    @Temporal(TemporalType.DATE)
+    private Date datumRojstva;
 
-### ```@ElementCollection``` in ```@CollectionTable```
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date zadnjaAktivnost;
+}
+```
+
+```@Trannsient``` spremenljivka, ki je nočemo, da je shranjena v podatkovni bazi.
+
+```java
+@Entity
+public class Oseba {
+    @Id
+    private String id;
+
+    @Transient
+    private String sejniKljuc;
+
+    private String ime;
+    private String priimek;
+}
+```
+
+```@Enumerated``` za uporabo naštevnih tipov (`emun`), ki so nabor konstant
+
+```java
+@Entity
+public class Oseba {
+    @Id
+    private String id;
+
+    @Emurated(EnumType.STRING)
+    private TipOsebe tipOsebe
+
+    private enum TipOsebe {
+        FIZICNA, PRAVNA;
+    }
+}
+```
+
+```@ElementCollection``` in ```@CollectionTable``` definira način pridobitve seznama primitivnih tipov
 
 ```java
 
@@ -656,8 +781,141 @@ public class Oseba {
 
 ## Relacije med entitetami
 
+|Relacija|Pomen|
+|**One-to-one**|vsaka instanca prve entitete je povezana z natanko eno instanco druge entitete|
+|**One-to-many**|vsaka instanca prve entitete je lahko povezana z večimi instancami druge entitete|
+|**Many-to-one**|več instanc prve entitete je lahko povezanih z eno instanco druge entitete|
+|**Many-to-many**|več instanc prve entitete je povezanih z večimi instancami druge entitete|
+
+Vse relacije podpirajo atribut s katerim določimo kdaj se bo vsebovani objekt naložil: **takojšnje `eager`** (elementi se naložijo tako ob nalaganju prvega) je privzet za `OneToOne` in `ManyToOne`, **odloženo `lazy`** (elementi se naložijo ob klicu nanj) je privzeta strategija pri `OneToMany` in `ManyToMany`
+
+```Java
+@Entity
+public class Oseba {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private String id;
+
+    @OneToMany(fetch = FetchType.EAGER)
+    private Naslov naslov;
+}
+```
 
 ## Dedovanje
+Koncept dedovanja ni poznan v relacijskem modelu, zato JPA definira 3 različne strategije preslikave hierarhičnega (objektnega modela z dedovanjem) v relacijskega:
+*   **strategija enojne tabele**
+    *   atributi celotne hierhije so sploščeni v eno tabelo
+    *   privzeta strategija dedovanja
+    *   dodani stolpec **diskriminator** določa tip posamezne vrstice
+    *   neizkoriščen prostor
+*   **strategija pridružitve**
+    *   vsaka entiteta v hierhiji je preslikana v svojo tabelo
+    *   korenska entiteta določa primarni ključ, ki je uporabljen v vseh drugih
+    *   najbolj odraža objektni model, vendar je zmogljivost povpraševanja slabša zaradi večjega števila tabel
+*   **strategija tabela na konkreten razred**
+    *   vsak konkreten razred ima svojo tabelo
+    *   vsi atributi korenskega razreda se preslikajo v stoplce tabele podrazreda
+    *   vse tabele imajo skupen primarni ključ
+    *   denormaliziran podatkovni model
+    *   relativno dobro povpraševanje, slaba zmogljivost polimorfičnega povpraševanja (`UNION`)
+
+## Osnovne operacije na entitetami
+### Kreiranje entitetnih objektov
+Entitetni objekti so navadni javanski objekti, dokler jih ne upravljamo in trajno shranjujemo s pomočjo upravljalca entitet, ki ga kličemo z uporabo metode `persist()`.
+
+### Brisanje entitet
+Metoda `remove()` z argumentom objekta, ki je upravljana entiteta, odstrani entiteto iz podatkovne baze (ali pa jo samo označi kot odstranjeno, dejansko brisanje pa se izvede ob klicu `flush()`). Ob klicu metode je objekt ločen od trajnega konteksta in ni več upravljan s strani upravljalca entitet.
+
+```java
+em.getTransaction().begin();
+Oseba o = em.find(Oseba.class, "151");
+em.remove(o);
+em.flush();
+em.getTransaction().commit();
+```
+
+### Posodabljanje entitet
+Metoda `merge()`:
+```java
+em.getTransaction().begin();
+Oseba o = em.find(Oseba.class, "151");
+o.setIme("Martin");
+em.merge(o);
+em.flush();
+em.getTransaction().commit();
+```
+
+### Povpraševanje po entitetah
+#### Iskanje entitet
+|`find()`|`getReference()`|
+|---|---|
+|`Oseba o = em.find(Oseba.class, "12");`|`Oseba o = em.getReference(Oseba.class, "12");`|
+|če upravljalec entitet ne najde ustrezne entitete vrača `null`|če upravljalec ne najde ustrezne entitete vrača `EntityNotFoundException`|
+||omogoča leno nalaganje (lazy loading)
+
+#### Povpraševanje po entitetah `QueryAPI`
+
+**Dinamična povpraševanja** so manj zmogljiva, saj se med izvajanjem ustvari nov objekt `Query`
+```java
+Query q = em.createQuery("SELECT o FROM Oseba o WHERE o.ime = 'Mihi'");
+List<Oseba> osebe = (List<Oseba>)(q.getResultList());
+```
+
+Lahko definiramo tudi **statična povpraševanja** nad entitetnim razredom:
+```java
+@Entity
+@NamedQueries({
+    @NamedQuery(name = "izberiVseOsebe",
+                query = "SELECT o FROM Osebe o"),
+    @NamedQuery(name = "izbrisiVseOsebe",
+                query = "DELETE FROM Oseba")
+})
+public class Oseba{
+    ...
+}
+```
+Statična povpraševanja kličemo z:
+```java
+Query q = em.createNamedQuery("izberiVseOsebe");
+List<Oseba> osebe = (List<Oseba>)(q.getResultList());
+```
+
+Povpraševanje lahko vrača samo en rezultat
+```java
+Query q = em.createQuery("SELECT o FROM Oseba o WHERE o.id = '654'");
+Oseba o = (Oseba) q.getSingleResult();
+```
+
+V povpraševanjih lahko uporabimo parametre:
+```java
+Query q = em.createQuery("SELECT o FROM Oseba o WHERE o.ime = ?1");
+q.setParameter(1, "Mihi");
+
+q = em.createQuery("SELECT o FROM Oseba o WHERE o.ime = :ime");
+q.setParameter("ime", "Mihi");
+```
+
+Rezultate lahko ostranjujemo, če predvidevamo, da jih bo veliko:
+```java
+int stZapisov = 3;
+int zacetek = 0;
+
+for (;true;) {
+    Query q = em.createQuery("SELECT o FROM Oseba o");
+    
+    q.setMaxResults(stZapisov);
+    q.setFirstResult(zacetek);
+
+    List<Oseba> osebe = q.getResultList();
+    if(osebe.isEmpty())
+        break;
+    
+    //obdelamo 1 stran rezultatov
+    em.clear();
+    zacetek += osebe.size();
+}
+```
 
 ## Struktura Java Persistence APIja
 ![](./pics/jpa003.png)
@@ -672,6 +930,79 @@ public class Oseba {
 >
 > ![](./pics/UML001.png)
 > spremenljivke in metode lahko izpustimo
+
+## Primerjava pristopov k shranjevanju podatkov v Javi
+
+|Podpora|Serializacija|JDBC|ORM|ODB|EJB 2|JDO|JPA|
+|--|--|--|--|--|--|--|--|
+|Java objekti|+||+|+|+|+|+|
+|Napredni OO koncepti|+||+|+||+|+|
+|Transakcijska integriteta||+|+|+|+|+|+|
+|Hkratnost||+|+|+|+|+|+|
+|Veliki nabori podatkov||+|+|+|+|+|+|
+|Obstoječa shema||+|+||+|+|+|
+|Relacijske in ne-relacijske shrambe|||||+|+||
+|Povpraševanja||+|+|+|+|+|+|
+|Standarizacija/prenosljivost|+||||+|+|+|
+|Preprostost|+|+|+|+||+|+|
+
+**Serializacija**
+|Prednosti|Slabosti|
+|--|--|
+|vgrajeni mehanizmi za preoblikovanje objektov v zaporedje bitov|omejena|
+|enostavna za uporabo|shranjuje in pridobiva celotne objekte, ne primerna za veliko količino podatkov|
+||ne omogoča razveljavljanja sprememb|
+||enonitno delovanje|
+||ne omogoča povpraševanj|
+
+**JDBC (Java Database Connectivity)**
+|Prednosti|Slabosti|
+|--|--|
+|obvladuje večje količine podatkov|ni enostavna za uporabo|
+|mehanizmi za zagotavljanje podatkovne integritete|ni načrtovan za shranjevanje objektov|
+|podpira hkraten dostop do podatkov|vsiljuje opuščanje objektno orientiranega programiranja|
+|povpraševalni jezik SQL||
+
+**Objektno-relacijske preslikave (ORM)**
+|Prednosti|Slabosti|
+|--|--|
+|neodvisni produkti izvajajjo preslikavo med objekti in relacijsko podatkovno bazo|vsak produkt ima svoj API||osredotočenje na objektni razvoj|aplikacija je tesno odvisna od ponudnika produkta|
+||prehod na drugi produkt zahteva spremembe v kodi|
+
+**Objektne podatkovne baze (ODB)**
+|Prednosti|Slabosti|
+|--|--|
+|baze, načrtovane za shranjevanje objektov|nevarnost odvisnosti od ponudnika|
+|enostavne za uporabo|nepoznana, nepreizkušena tehnologija|
+||manj orodji za analizo|
+
+**Enterprise Java Beans (EJB 2.0)**
+|Prednosti|Slabosti|
+|--|--|
+|ni omejeno samo na relacijske podatkovne baze|omejena podpora za objektno-orientirane koncepte|
+|uporablja stroge standarde (zato prenosljivo med ponudniki)|ne podpira dedovanja, polimorfizma, kompleksnih odvisnoti|
+||težavni za programiranje|
+||zahtevajo kompleksne (drage) aplikacijske strežnike|
+
+**Java Data Objects (JDO)**
+|Prednosti|Slabosti|
+|--|--|
+|specifikacija, podobna JPA|manj uveljavljena od JPA|
+|podpora ne-relacijskim podatkovni bazam|ne-ralacijska podpora se oddaljuje od specifikacij|
+
+
+**Java Persistence API (JPA)**
+
+Združuje najboljše lastnosti omenjenih mehanizmov:
+*   kreiranje entitet je preprosto
+*   podpora za veliko količino podatkov
+*   zagotavlja konsistenco podatkov
+*   omgoča hkratno uporabo
+*   ponuja povpraševalne sposobnosti JDBC-ja (SQL == JPQL)
+*   omogoča uporabo objektnih konceptov
+*   standardna specifikacija
+*   osredotočena na relacijske podatkovne baze
+
 
 # Nivo poslovne logike in CDI
 
