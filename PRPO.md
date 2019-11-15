@@ -71,11 +71,10 @@
       - [Povpraševanje po entitetah `QueryAPI`](#povpra%c5%a1evanje-po-entitetah-queryapi)
   - [Struktura Java Persistence APIja](#struktura-java-persistence-apija)
   - [Primerjava pristopov k shranjevanju podatkov v Javi](#primerjava-pristopov-k-shranjevanju-podatkov-v-javi)
-- [Nivo poslovne logike in CDI](#nivo-poslovne-logike-in-cdi)
-  - [CDI - Contexts and Dependancy Injection](#cdi---contexts-and-dependancy-injection)
-    - [CDI zrna](#cdi-zrna)
-  - [CDI container](#cdi-container)
-  - [Interceptor](#interceptor)
+- [Contexts and Dependency Injection (CDI)](#contexts-and-dependency-injection-cdi)
+  - [CDI zrna](#cdi-zrna)
+  - [Doseg CDI](#doseg-cdi)
+  - [Prestrezniki (Interceptors)](#prestrezniki-interceptors)
     - [```GET``` za branje vira](#get-za-branje-vira)
       - [```GET``` za branje določenega vira](#get-za-branje-dolo%c4%8denega-vira)
       - [`GET` na viru](#get-na-viru)
@@ -1004,31 +1003,30 @@ Združuje najboljše lastnosti omenjenih mehanizmov:
 *   osredotočena na relacijske podatkovne baze
 
 
-# Nivo poslovne logike in CDI
+# Contexts and Dependency Injection (CDI)
+**CDI zagotavlja**
+*   **Kontekst** *(context)* - komponente imajo določene življenjske cikle in interakcije glede na jasno definirane in razširljive kontekste
+    ![](./pics/CDI001.png)
+*   **Vstavljanje odvisnosti** *(dependency injection)* omogoča vstavljanje referenc na posamezne komponente znotraj aplikacije
 
-## CDI - Contexts and Dependancy Injection
-1. Zagotavlja kontekst izvajanja - komponente imajo določen življenski cikel in iteracije glede na jasno.definirane in razširljive kontekste
-![](./pics/CDI001.png)
-2. Vstavljanje odvisnosti omogoča vstavljanje referenc na posamezne komponente znotraj aplikacije
+CDI razvijalcem omogoča, da imajo njihovi objekti avtomatsko zagotovljene odvisnosti, namesto, da jih sami ustvarjajo ali dobijo kot parametre.
 
-### CDI zrna
+CDI omogoča tudi:
+*   integracijo z *Expression Language (EL)* za uporabo Java server faces in Java server pages
+*   možnost dodajanja dekoratorjev komponentam
+*   dodajanje prestreznikov (interceptorjev)
+*   uporabo dogodkov
+
+## CDI zrna
 So razredi, ki jih instancira, upravlja in vstavlje CDI vsebnik.
 
-## CDI container
-CDI vsebnik skrbi za:
-*   življenski cikel 
-    * vsebnik sam ustvarja nove instance razreda (določamo samo scope - ```reguest, session, application```)
-    ![](./pics/JDC001.jpg)
-*   vstavljanje odvisnosti
+## Doseg CDI
+![](./pics/JDC001.jpg)
 
-![](./pics/CDI002.png)
+## Prestrezniki (Interceptors)
 
-> *"Kaj bluzi Jurič"*\
-> Jurič, 4.11.2019
-
-## Interceptor
-Metoda, ki omogoča, da se pred ali po izvedbi neke metode izvedemo še neko drugo kodo (metodo) avtomatsko.
-
+Interceptor omogoča, da se pred ali po izvedbi neke metode izvede še nekaj drugega (npr. še 
+ena metoda).
 ```java
 @MojPrestreznik
 public void nekaDrugaMetoda (int id) {
@@ -1036,6 +1034,85 @@ public void nekaDrugaMetoda (int id) {
 }
 ```
 ```MojPrestreznik()``` je definiran v CDI zrnu.
+
+### Tipi prestreznikov
+Specifikacija definira tri tipe prestreznikov:
+1. **Business method interceptor** zadevajo klice metod zrna s strani odjemalca zrna
+    ```java
+    public class TransactionalInterceptor {
+        @AroundInvoke
+        public Object manageTransaction(InvocationContext ctx) throws Exception {...}
+    }
+    ```
+2.  **Lifecycle callback interceptor** se nanaša na povratne klice v življenjskem ciklu s strani vsebnika:
+    ```java
+    public class DependencyInjectionInterceptor {
+        @PostConstruct
+        public void injectDependencies(InvocationContext ctx) {...}
+    }
+    ```
+3.  **Timeout method interceptor** se nanaša na klivce EJB timeout metod s strani vsebnika
+    ```java
+    public class TimeoutInterceptor {
+        @AroundTimeout
+        public Object manageTransaction(InvocationContext ctx) throws Exception {...}
+    }
+    ```
+
+### Definicija novega prestreznika
+1. Definiramo tip, kjer uporabnimo anotacijo `@InterceptorBinding`
+    ```java
+    @InterceptorBinding
+    @Target({METHOD, TYPE})
+    @Retention(RUNTIME)
+    public @interface Transactional {}
+    ```
+2.  Določimo, da je razred transakcijski objekt ali pa je zgolj ena metoda transakcijska:
+    ```java
+    @Transactional
+    public class ShoppingCart{...}
+
+    /*ali*/
+
+    public class ShoppingCart {
+        @Transactional public void checkout() {...}
+    }
+    ```
+3. Prestreznik še implementiramo z dodano anotacijo `@Interceptor`
+    ```java
+    @Transactional @Interceptor
+    public class TransactionalInterceptor {
+        @Resource UserTransaction transaction;
+        @AroundInvoke
+        public Object manageTransaction(InvocationContext ctx) throws Exception {...}
+    }
+    ```
+4. Prestreznik omogočimo z `@Priority` ali v deskriptorju `beans.xml`:
+    ```xml
+    <beans ...>
+        <interceptors>
+            <class>org.mycompany.myapp.TransactionInterceptor</class>
+        </interceptors>
+    </beans>
+    ```
+
+## Uporaba JTA in transakcij
+Z uporabo JTA (Java Transaction API) v CDI zrnih deklerativno upravljamo s transakcijami, transakcije upravljamo z anotacijo `javax.transaction.Transaction` na metodah. Kot parameter podamo transakcijski kontekst tipa `Transactional.TxType`.
+
+Podprti tipi transakcijskih kontekstov znotraj `Transactional.TxType` so:
+*   `MANDATORY` - če metodo kličemo izven transakcijskega konteksta, se proži `TransactionRequiredException`
+*   `NEVER` - če metodo kličemo izven transakcijskega konteksta, se izvede izven transakcijskega konteksta
+*   `REQUIRED` - če metodo kličemo izven transkacijskega konteksta, se odpre nov transakcijski kontekst v katerem se izvede metoda
+
+```java
+@Transactional(Transactional.TxType.REQUIRED)
+public Payment processPayment() {
+    ...
+}
+```
+
+> *"Kaj bluzi Jurič"*\
+> Jurič, 4.11.2019
 
 ## CRUD ukazi
 **C** - create, **R** - read, **U** - update, **D** - delete ukazi
