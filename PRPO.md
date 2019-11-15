@@ -1,4 +1,80 @@
-## Opravljanje predmeta
+# Kazalo vsebine
+- [Kazalo vsebine](#kazalo-vsebine)
+- [Opravljanje predmeta](#opravljanje-predmeta)
+- [Razvoj IT arhitektur](#razvoj-it-arhitektur)
+  - [IT agilnost podjetji](#it-agilnost-podjetji)
+  - [IT arhitektura](#it-arhitektura)
+    - [Software platforma](#software-platforma)
+    - [Namestitev aplikacije](#namestitev-aplikacije)
+    - [Vrste SQL baz](#vrste-sql-baz)
+      - [ACID baze](#acid-baze)
+      - [BASE baze](#base-baze)
+  - [Upravljanje z odvisnostmi](#upravljanje-z-odvisnostmi)
+- [Maven](#maven)
+  - [Prednosti uporabe Maven](#prednosti-uporabe-maven)
+  - [POM - Project Object Model](#pom---project-object-model)
+    - [Primer POM datoteke](#primer-pom-datoteke)
+    - [Dedovanje POM datotek](#dedovanje-pom-datotek)
+    - [Agregacija modulov](#agregacija-modulov)
+  - [Maven življenjski cikli](#maven-%c5%beivljenjski-cikli)
+  - [Struktura Maven projekta](#struktura-maven-projekta)
+  - [Prakse pri uporabi Maven](#prakse-pri-uporabi-maven)
+    - [Slaba praksa: podvajanje odvisnosti](#slaba-praksa-podvajanje-odvisnosti)
+    - [DObra praksa: uporaba binarnega repozitorija](#dobra-praksa-uporaba-binarnega-repozitorija)
+  - [Izdelava dokumentacije](#izdelava-dokumentacije)
+- [JDBC - Java Database Connectivity](#jdbc---java-database-connectivity)
+  - [Tipi JDBC gonilnikov](#tipi-jdbc-gonilnikov)
+    - [Tip 1: JDBC-ODBC most](#tip-1-jdbc-odbc-most)
+    - [Tip 2: delni javanski gonilnik](#tip-2-delni-javanski-gonilnik)
+    - [Tip 3: javanski/mrežni gonilnik](#tip-3-javanskimre%c5%beni-gonilnik)
+    - [Tip 4: čisti javanski gonilnik](#tip-4-%c4%8disti-javanski-gonilnik)
+  - [Koraki pri uporabi JDBC](#koraki-pri-uporabi-jdbc)
+    - [Korak 1: Nalaganje gonilnika](#korak-1-nalaganje-gonilnika)
+    - [Korak 2: Sestavljenje URL niza za povezavo na bazo](#korak-2-sestavljenje-url-niza-za-povezavo-na-bazo)
+    - [Korak 3: Vzpostavljanje povezave](#korak-3-vzpostavljanje-povezave)
+    - [Korak 4: Kreiranje objekta ```Statement```, ```PreparedStatement``` ali ```CallableStatement```](#korak-4-kreiranje-objekta-statement-preparedstatement-ali-callablestatement)
+      - [`Statement`](#statement)
+      - [`PreparedStatement`](#preparedstatement)
+      - [`CallableStatement`](#callablestatement)
+    - [Korak 5: Izvršitev SQL povpraševanj ali shranjenih procedur](#korak-5-izvr%c5%a1itev-sql-povpra%c5%a1evanj-ali-shranjenih-procedur)
+      - [Uporaba objekta `Statement`](#uporaba-objekta-statement)
+      - [Uporaba objekta `PreparedStatement`](#uporaba-objekta-preparedstatement)
+    - [Korak 6: Obdelava rezultatov](#korak-6-obdelava-rezultatov)
+    - [Korak 7: Zapiranje povezave](#korak-7-zapiranje-povezave)
+  - [JDBC transakcije](#jdbc-transakcije)
+  - [JDBC Connection Pool](#jdbc-connection-pool)
+  - [Dobre prakse uporabe JDBC](#dobre-prakse-uporabe-jdbc)
+  - [DAO (Data Access Object)](#dao-data-access-object)
+    - [Vzorec DAO](#vzorec-dao)
+    - [Naloge DAO](#naloge-dao)
+    - [Generiranje baznega DAO](#generiranje-baznega-dao)
+- [Java Persistence API (JPA)](#java-persistence-api-jpa)
+  - [Anotiranje entitetnih razredov](#anotiranje-entitetnih-razredov)
+    - [```@SecondaryTable```](#secondarytable)
+    - [```@Id```](#id)
+    - [```@Temporal``` "Kalendar"](#temporal-%22kalendar%22)
+    - [```@Trannsient```](#trannsient)
+    - [```@Enumerated```](#enumerated)
+    - [```@ElementCollection``` in ```@CollectionTable```](#elementcollection-in-collectiontable)
+  - [Relacije med entitetami](#relacije-med-entitetami)
+  - [Dedovanje](#dedovanje)
+  - [Struktura Java Persistence APIja](#struktura-java-persistence-apija)
+- [Nivo poslovne logike in CDI](#nivo-poslovne-logike-in-cdi)
+  - [CDI - Contexts and Dependancy Injection](#cdi---contexts-and-dependancy-injection)
+    - [CDI zrna](#cdi-zrna)
+  - [CDI container](#cdi-container)
+  - [Interceptor](#interceptor)
+    - [```GET``` za branje vira](#get-za-branje-vira)
+      - [```GET``` za branje določenega vira](#get-za-branje-dolo%c4%8denega-vira)
+      - [`GET` na viru](#get-na-viru)
+    - [```POST``` za ustvarjanje](#post-za-ustvarjanje)
+    - [```PUT`` za posodabljanje](#put-za-posodabljanje)
+    - [```DELETE``` za brisanje](#delete-za-brisanje)
+  - [Fornat sporočil](#fornat-sporo%c4%8dil)
+    - [JSON](#json)
+      - [JSON header](#json-header)
+
+# Opravljanje predmeta
 * 50% projekt pri vajah
 * 50% kolokviji/izpit
 > ### Kolokviji
@@ -218,6 +294,39 @@ Spletno stran z dokumentacijo generiramo z uporabo ukaza `mvn site`, spletne str
 
 # JDBC - Java Database Connectivity
 
+Standardna javanska knjižnica JDBC API standarizira:
+*   vzpostavljanje povezave na bazo
+*   izvajanje SQL povpraševanj
+*   strukturo rezultatov povpraševanj
+
+JDBC sestavljajo:
+*   JDBC API - čisti javanski API
+*   JDBC Driver Managerm ki komunicira s produktno-specifinimi gonilniki, ki opravijo dejansko komunikacijo s podatkovno bazo
+
+![](./pics/JDBC002.jpg)
+
+## Tipi JDBC gonilnikov
+### Tip 1: JDBC-ODBC most
+Vsi JDBC klici se pretvorijo v ODBC klice in jih kot take posredujejo ODBC gonilniku, ki je generičen API za dostop do baze. Zaradi slabe prenosljivosti in slabega performansa je primerna samo za testne namene ali kadar ni na voljo javanskega gonilnika.
+
+![](./pics/JDBC003.jpg)
+
+### Tip 2: delni javanski gonilnik
+JDBC klic se posreduje specifičnemu gonilniku za posamezen tip podatkovne baze, vendar ni napisan v Javi, zaradi česar je v praksi redko uporabljen.
+
+![](./pics/JDBC004.jpg)
+
+### Tip 3: javanski/mrežni gonilnik
+Najbolj učinkovit gonilnik, vse zahteve se preko mreže posredujejo do vmesnega sloja, ki nato ustrezno pretvori ukaze (uporaba nekega drugega tipa gonilnika). Zahteva vzdrževanje gonilnikov na strani strežnika.
+
+![](./pics/JDBC005.jpg)
+
+### Tip 4: čisti javanski gonilnik
+Omogoča komunikacijo direktno s podatkovno bazo, JAR datoteko dodamo v classpath. Omogoča visoko prenosljivost in neodvisnost ter dober performanse, vendar za vsak tip baze potrebujemo drug gonilnik.
+
+![](./pics/JDBC006.jpg)
+
+
 Pošiljanje SQL stavkov podatkovni bazi:
 *   **Statement** - pošilja navaden SQL, ni dobra praksa, ker je navaden String
 *   **Prepared statement** - pošilja navaden SQL, predpošiljanje, lahko si PB pripravi način izvajanja, chekira za vdore
@@ -225,24 +334,157 @@ Pošiljanje SQL stavkov podatkovni bazi:
 
 ## Koraki pri uporabi JDBC
 ### Korak 1: Nalaganje gonilnika
+*Od Jave 6 ni več potreben, naloži se na podlagi JDBC URL niza.*
 
-### Korak 2: Sestvljanje URL niza za povezavo na bazo
+### Korak 2: Sestavljenje URL niza za povezavo na bazo
+**Format**: `jdbc:vendorName://host:port/databaseName`
+```java
+String host = "jakmar.cloud.si";
+String dbName = "jakaStorage";
+int port = 8080;
+String db2Url = "jdbc:db2://"+host+":"+port+"/"+dbName;
+```
 
 ### Korak 3: Vzpostavljanje povezave
-
+Povezavo pridobimo s pomočjo razreda `DriverManager` s klicem njegove metode `getConnection()`.
+```java
+String userName = "jakmar17"
+String password = "geslo123"
+Connection con = DriverManager.getConnection(db2Url, username, password);
+```
 
 ### Korak 4: Kreiranje objekta ```Statement```, ```PreparedStatement``` ali ```CallableStatement```
 
+#### `Statement`
+Omogoča izvedbo SQL stavka, ki ga sestavimo kot navaden String. Ne omogoča uporabe parametrov.
+
+#### `PreparedStatement`
+SQL povpraševanje sestavimo v obliki niza, ki omogoča uporabo parametrov. Parameter označimo kot `?`, ki ga nato ustavimo kot `setXXX(indeks, vrednost)` (*npr `setInt(1, 3)*). Preprečuje SQL injection in je predhodno preveden - zagotavlja boljši performanse.
+
+#### `CallableStatement`
+Omogoča klic shranjenih procedur.
+
 ### Korak 5: Izvršitev SQL povpraševanj ali shranjenih procedur
+#### Uporaba objekta `Statement`
+```java
+public void vrniUporabnika (int id) {
+    Statement s = null;
+    try {
+        s = conn.createStatement();
+        String sql = "select * from uporabniki where id_uporabnika = " +id;
+        ResultSet rs = s.executeQuery(sql);
+
+        //obdelava rezultatov
+        if (rs.next()) {
+            String ime = rs.getString("ime");
+        //nadaljna obdelava rezultatov
+        } else {
+            System.out.println("Ne najdem uporabnika");
+        }
+    } catch (SQLException e) {
+        System.out.println(e.printStackTrace());
+    } finally {
+        if (s != null)
+            s.close();
+    }
+}
+```
+
+Nad objektom tipa Statement vršimo eno izmed operacij:
+|Operacija||
+|---|---|
+|`ResultSet executeQuery(String sql)`|vrne tabelo rezultatov tipa `ResultSet`|
+|`boolean execute(String SQL)`|vrne `true`, če lahko pridobimo `ResultSet`|
+|`int executeUpdate(String SQL)`|vrne število spremenjenih/dodanih/izbrisani vrstic|
+
+#### Uporaba objekta `PreparedStatement`
+
+```java
+public void vrniUporabnika(int id) {
+    PreparedStatement ps = null;
+    try {
+        String sql = "select * from uporabniki where id_uporabnika = ?";
+        ps = conn.preparedStatement(sql);
+        ps.setInt(1, id);
+        ResultSet rs = ps.executeQuery();
+
+        //obdelava rezultatov
+        if(rs.next()) {
+            String ime = rs.getString("ime");
+
+            //nadaljna obdelava
+        } else {
+            // uporabnika ne najde
+        }
+    } catch (SQLException e) {
+        System.out.println(e.printStackTrace());
+    } finally {
+        if (ps != null)
+            ps.close();
+    }
+}
+```
 
 ### Korak 6: Obdelava rezultatov
-
 Če ne poznamo strukture tabele, jo pridobimo s klicem metode ```getMetaData()```.
+```java
+ResultSet rs = ps.executeQuery();
+while(rs.next()){
+    String ime = rs.getString(“ime”);
+    String priimek = rs.getString(“priimek”);
+    int starost = rs.getInt(“starost”);
+    System.out.println(“ime: ”+ime+” priimek: “+priimek+”
+    starost: ”+starost);
+}
+```
+Privzeto se lahko v `ResultSet` premikamo samo naprej, lahko pa definiramo scrollable `ResultSet`:
+```java
+Statement s = con.createStatement (
+                ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_UPDATABLE
+            );
+ResultSet rs = s.executeQuery("select * from table");
+```
 
 ### Korak 7: Zapiranje povezave
+```java
+try {
+    if (conn != null)
+        conn.close();
+} catch(SQLException e) {
+    e.printStackTrace();
+}
+```
 
 > *"Imate prijaznega asistenta letos.... šalim se malo"*\
 > Jurič, 21.10.19
+
+## JDBC transakcije
+Privzeto se vsi ukazi samodejno potrdijo, torej `autoCommit = true`
+
+Če želimo več ukazov izvesti kot eno transakcijo:
+```java
+Connection conn = DriverManager.getConnection(url, user, pass);
+connection.setAutoCommit(false);
+
+try {
+    statement.executeUpdate(...);
+    statement.executeUpdate(...);
+    statement.executeUpdate(...);
+    ...
+
+    conn.commit();
+} catch (SQLException e) {
+
+} finally {
+    try {
+        if (conn != null)
+            conn.close();
+    } catch (Exception e) {
+
+    }
+}
+```
 
 ## JDBC Connection Pool
 
@@ -252,30 +494,43 @@ Možnosti povezave na podatkovno bazo:
 
 ![](./pics/JDBC001.png)
 *Connection Pool == **DataSource*** kje se nahaja programerja ne zanima (mikro storitev, PB...)
+**JNDI** = Java Naming and Directory Interface, abstrakcija LDAP-ja
 
-#### Data Source
-**JNDI** ime Java Naming and Directory Interface
+Primer uporabe JNDI-ja
+```java
+public Connection povezi() throws SQLException {
+    Connection con = null;
 
-**LDAP** ?, JDNI je abstrakcija LDAP
+    try{
+        Context initCtx = new InitialContext();
+        Context envCtx = (Context) initCtx.lookup("java:comp/env");
 
-1.  Iz LDAP pridobimo povezavo do Data Sourca (naredimo JDNI lookup, CDX lookup)
+        DataSource ds = (DataSource)envCtx.lookup("jdbc/TestDB");
+        con = ds.getConnection();
+    } catch (NamingException e) {
+
+    }
+
+    return con;
+}
+```
 
 > *"Pasvord"*\
 > Jurič
 
-> *"Kolegice in kolegi*\
+> *"Kolegice in kolegi"*\
 > Jurič
 
 **RDBS**
 **TPM**
 
 ## Dobre prakse uporabe JDBC
-### Ne-mešanje poslovne logike in JDBC
+*   Ne-mešanje poslovne logike in JDBC
 
 Ne delaj tega
 ```java
 public boolean preveriStanjeUp (...) {
-    //JDB koda
+    //JDBC koda
     ...
     //
 
@@ -296,17 +551,27 @@ public boolean preveriStanjeUp (...) {
 }
 ```
 
+*   uporaba transakcij
+*   uporaba `PreparedStatement` ne `Statement`
+
+## DAO (Data Access Object)
+Standardni javanski načrtovalski vzorec, ki predvideva ločitev nizko-nivojskih operacij za dostop do podatkov od visoko-nivojske poslovne logike. DAO skriva kompleksnost in izpostavlja vmesnik, ki ga uporablja poslovni nivo.
+Dao se uporablja v kombinaciji z **objekti za prenos podatkov DTO** (Data Transfer Object).
+
 V DAO imamo tudi ```getUporabnik()```, kjer dobimo "pravega uporabnika". Za ta namen uporabimo ```Java Zrno (Java Bean)``` s prilagojenimi ```get``` in ```set``` metodami. Takšnemu zrnu pravimo ```DTO (Data Transfer Object)```.
 
 Zakaj?
 *   razdelimo odgovornost
 *   lahko spreminjamo podatkovno bazo brez spreminjanja poslovne logike
 
-## DAO (Data Access Object)
-
-### DAO vzorec
-
+### Vzorec DAO
 ![](./pics/DAO001.jpg)
+
+
+### Naloge DAO
+*   transakcije
+*   obravnava napak
+*   beleženje (logiranje)
 
 ### Generiranje baznega DAO
 ```java
@@ -315,12 +580,11 @@ public interface BaseDao {
 }
 ```
 
-> 
 > ## Serializacija
 > > V eni JVM se objekti pošiljajo kot *pass-by-reference*
 > Avomatski postopek pretvarjanja iz stanja objekta v tok podatkov za pošiljanje objekta med različnimi JVM v omrežju. Obstajata dve vrsti serializacije:
 > *   binarna serializacija (podpira npr. ciklične grafe)
-> *   markup serializacija (JSON ali ??) - pretvarjanje direktno iz in v objekte > (podpira zgolj hierarhične podatkovne modele)
+> *   markup serializacija (JSON ali ??) - pretvarjanje direktno iz in v objekte (podpira zgolj hierarhične podatkovne modele)
 > 
 > ```java
 > 
@@ -330,7 +594,7 @@ public interface BaseDao {
 > 
 > ```
 
-# Java Persistence API
+# Java Persistence API (JPA)
 Namesto, da za vsak objekt napišemo DAO in DTO, ali lahko napišemo samo DTO?\
 ![](./pics/003.png)
 
