@@ -75,15 +75,11 @@
   - [CDI zrna](#cdi-zrna)
   - [Doseg CDI](#doseg-cdi)
   - [Prestrezniki (Interceptors)](#prestrezniki-interceptors)
-    - [```GET``` za branje vira](#get-za-branje-vira)
-      - [```GET``` za branje določenega vira](#get-za-branje-dolo%c4%8denega-vira)
-      - [`GET` na viru](#get-na-viru)
-    - [```POST``` za ustvarjanje](#post-za-ustvarjanje)
-    - [```PUT`` za posodabljanje](#put-za-posodabljanje)
-    - [```DELETE``` za brisanje](#delete-za-brisanje)
-  - [Fornat sporočil](#fornat-sporo%c4%8dil)
-    - [JSON](#json)
-      - [JSON header](#json-header)
+- [Storitve REST v Javi](#storitve-rest-v-javi)
+- [Medklici](#medklici)
+  - [HTTP kode](#http-kode)
+    - [Uporabne HTTP kode za uspešno procesiranje](#uporabne-http-kode-za-uspe%c5%a1no-procesiranje)
+    - [Uporabne HTTP kode za napake](#uporabne-http-kode-za-napake)
 
 # Opravljanje predmeta
 * 50% projekt pri vajah
@@ -1127,7 +1123,12 @@ public Payment processPayment() {
 > *Pol so prišli malo boljši časi, manj stari časi.*
 > Jurišič, 11.11
 
-# REST
+# Representational State Transfer (REST)
+**REST** je arhitekturni stil, ki izvaja abstrakcijo arhitekturnih elementov znotraj distribuiranih hipermedijskih sistemov (odjemalec-strežnik). Je brez stanja z močno uporabo medpomnenja.
+
+Ključne lastnosti REST-a so: skalabilnost, splošnost, neodvisnost, odzivnost na spremembe, latenca, varnost in enkapsulacija.
+
+**HATEOAS** (Hypermedia as the engine of application state) je dodatna omejitev REST arhitekture, ki definira naj odjemalec komunicira z aplikacijo preko omrežja zgolj preko hipermedija, ki ga dinamično streže strežnik. Kot posledica REST odjemalec vstopa preko znane vstopne točke v sistem.
 
 ## Zgodovinski razvoj vmesnikov
 *   binarni
@@ -1141,16 +1142,32 @@ public Payment processPayment() {
 
 ![](./pics/rest01.png)
 
-## API in HTTP metode
+## Oblikovanje RESTful storitev
+**RESTful spletni API** ali **RESTful spletna storitev** deluje na osnovi REST arhitekture in HTTP protokola.
 
-```java
-vrniSeznamArtiklov();
-izvediPlacilo();
-dodajArtikel();
-posodobiArtikel();
-```
+REST storitve gradijo spletni API, ki je razumljiv razvijalcu izven okolja razvoja storitve. Uporaben je preko naslove vrstice brskalnika, zato je preprost, intuitiven in konsistenten, vendar hkratu tudi razširljiv in efektiven.
 
-Za dostop do metod uporabimo ```HTTP``` metode:
+![](./pics/REST001.jpg)
+
+## Viri API storitve
+Vire oblikujemo enostavno in učinkovito, po strategiji **grobo zrnato, samostalniki v množini**.
+
+|Vir zbirke|Vir instance|
+|--|--|
+|/razmerja|/razmerja/2234|
+
+## Akcije
+Uporabljajo se standardne HTTP metode
+|HTTP metoda|pomen|
+|--|--|
+|`GET`|metoda pridobiva podatke iz strani strežnika (branje)|
+|`POST`|ustvarjanje novega vira|
+|`PUT`|posodabljanje celotnega obstoječega vira|
+|`DELETE`|brisanje vira|
+|`HEAD`|branje HTTP zaglavja brez vsebine|
+|`PATCH`|delno posodabljanje obstoječega vira|
+
+Primeri poizvedb:
 
 |HTTP metoda|URL||
 |--|:--:|--|
@@ -1160,20 +1177,43 @@ Za dostop do metod uporabimo ```HTTP``` metode:
 |```PUT```|```/razmerje/345```|posodobi razmerje z *ID 345*|
 |```DELETE```|```/razmerje/345```|izbriše razmerje z *ID 345*|
 
-*Vire oblikujemo enostavno in učinkovito (grobo zrnato, samostalniki v množini)*
-Ustvarjamo lahko nove pod vire ```GET artikel/345/akcija```
-
-
-| Vir zbirke | Vir instance |
-|--|--|
-|/razmerja|/razmerja/*id_razmerja*|
-
-> *"A se še kaj spomnite slovenščine iz srednje šole? Samostalnik, pridevnik,... Šalim se, saj vem da se"*
-> Jurič
-
-### ```GET``` za branje vira
-
-#### ```GET``` za branje določenega vira
+### `GET`
+*   za branje celotnega vira:
+    ```HTTP
+    GET /razmerja
+    ```
+    odgovor s HTTP kodo 200:
+    ```JSON
+    200 OK
+    [
+        {
+            "id": 12345,
+            "naziv": "Razmerje1",
+            ...
+        }, 
+        {
+            "id": 12344,
+            "naziv": "Razmerje2",
+            ...
+        },
+        ...
+    ]
+    ```
+*   za branje specifičnega vira
+    ```HTTP
+    GET /razmerje/12345
+    ```
+    odgovor z HTTP kodo 200
+    ```JSON
+    200 ok
+    [
+        {
+            "id": 12345,
+            "naziv": "Razmerje1",
+            ...
+        }
+    ]
+    ```
 
 #### `GET` na viru
 
@@ -1184,21 +1224,386 @@ Ustvarjamo lahko nove pod vire ```GET artikel/345/akcija```
 |Sort|`artikli?sort='...'`, `artikli?order=naziv ASC, prioriteta DESC`|
 
 
-### ```POST``` za ustvarjanje
+### `POST`
+Pošilja se glava:
+```HTTP
+POST /razmerja
+```
+in telo:
+```JSON
+{
+    "naziv": "Razmerje5",
+    ...
+}
+```
 
-### ```PUT`` za posodabljanje
+Kot odgovor se vrača rezultat o ustvarjenem viru s priporočeno kodo 201
+```HTTP
+201 Created
+Location: https://api.jazjaz.si/razmerje/3456
 
-### ```DELETE``` za brisanje
+{
+    "id": 3456,
+    "naziv": "Razmerje5",
+    ...
+}
+```
 
-> ### *Medklic*: minor/major verzije in kompatibilnost za nazaj
-> **Minor** verzije (1.0, 1.1, 1.2) so kompatibilne za nazaj
-> **Major** verzije (1.x, 2.x) niso kompatibilne za nazaj - različne major verzije imajo svoj url ```api.url/v1/...```, ```api.url/v2/...```
+### `PUT`
+`PUT` uporabimo za posodabljanje celotnega vira
+```HTTP
+PUT /razmerja/3456
+```
+```JSON
+{
+    "id": 12345,
+    "naziv": "Razmerje1",
+    "tveganje": 4,
+    ...
+}
+```
 
-## Fornat sporočil
+Kot odgovor pridobimo HTTP kodo 200:
+```HTTP
+200 OK
+```
+```JSON
+{
+    "id":12345,
+    ...
+}
+```
 
-### JSON
+### `DELETE`
+`DELETE` uporabimo za brisanje elementa vira in se izvede na instanci vira. Telo mora biti brazno (pošiljamo samo glavo, URI).
+
+```HTTP
+DELETE /skladi/AABB22
+```
+
+Kot odgovor pridobimo prazno telo s HTTP kodo 204 (No Content):
+```HTTP
+204 No Content
+```
+
+### Ne-CRUD akcije
+Akcije, ki ne spadajo pod CRUD operacije lahko vključimo na več načinov:
+*   restrukturiranje akcije, da jo predstavimo kot polje na viru
+*   obravnavamo ga kot pod vir
+    ```HTTP
+    POST /razmerje/3214/skleni
+    POST /razmerja/3214/prekini
+    ```
+*   če ga ne moremo predstaviti z enim virom, ustvarimo nov navidezni vir
+    ```HTTP
+    POST /iskanje
+    ```
+
+#### Iskanje med zbirkami
+```http
+GET https://api.ts.si/razmerja?prioriteta=5
+
+GET https://api.ts.si/razmerja?where=vrednost:gte:521
+```
+
+Sortiranje rezultatov:
+```http
+GET https://api.ts.si/razmerja?order=naziv ASC, prioriteta DESC
+```
+
+Generični iskalni parameter `q`:
+```http
+GET https://api.ts.si/razmerja?q=alta
+```
+
+Za pogoste poizvedbe lahko naredimo aliase, namesto:
+```http
+GET https://api.ts.si/novice?date=
+```
+dobimo
+```http
+GET https://api.ts.si/novice/danes
+```
+
+Iskalne vire lahko kombiniramo z znakom in `q`.
+
+> *"A se še kaj spomnite slovenščine iz srednje šole? Samostalnik, pridevnik,... Šalim se, saj vem da se"*\
+> Jurič
+
+#### Ostranjevanje zbirk
+Z uporabo parametrov `offset` in `limit`:
+```http
+GET https://api.ts.si/razmerja?offset=50&limit=25
+```
+Odgovor:
+```http
+Link: <https://api.ts.si/razmerja?offset=50&limit=0>;rel=prev,<https://api.ts.si/razmerja?offset=50&limit=75>;rel=next,
+```
+ali (nepriporočljivo):
+```json
+{
+ "metadata": {
+ "offset": 50,
+ "limit": 25,
+ "total": 252
+ },
+ "data": [
+...
+ ]
+}
+```
+
+## Pot do virov
+Enostaven URL omogoča lažjo interpretacijo razvijalcem, vendar osnovni URL do storitve tehnološko ni pomemben
+```http
+https://www.ts.su/razvoj/storitve/api/rest/
+
+https://api.ts.si/
+```
+
+### Verzioniranje
+
+Verzioniramo lahko na 3 načine:
+*   verzinoniranje z URL naslovi
+    ```http
+    https://api.ts.si/storitve/...
+    https://api.ts.si/v1/storitve/...
+    ```
+    >**Minor** verzije (1.0, 1.1, 1.2) so kompatibilne za nazaj
+    >
+    >**Major** verzije (1.x, 2.x) niso kompatibilne za nazaj - različne major verzije imajo svoj url 
+    >```http
+    >api.url/v1/...
+    >api.url/v2/...
+    >```
+
+*   verzioniranje s pomočjo MIME formata sporočila:
+    ```http
+    Content-Type: application/si.ts.v1.razmerje.json
+    Content-Type: application/si.ts.v1.razmerje.json;v=1
+    ```
+    Ta princip je pravilnejši, saj ohranja URL naslove virov, vendar je težji za razumevanje in formuliranje ter ima slabšo podporo.
+
+*   Verzioniranje s pomočjo dodatnega poljubnega polja v HTTP glavi
+    ```http
+    X-API-Version: v1
+    ```
+    Če se polje ne poda, se uporabi privzeta verzija. Ker gre za nestandardno polje je podpora slabša.
+
+Dobre prakse verzioniranja vključujejo:
+1.  Verzionira se samo *major* vezije
+2.  Druge (manjše) spremembe (*minor* verzije) obdržijo kompatibilnost za nazaj
+3.  Stare *major* verzije delujejo še določen čas za lažji prehod odjemalcev
+
+### Delne predstavitve virov
+API naj omogoči delne predstavitve virov, saj uporabnik ne potrebuje vedno celotne predstavitve. Polja določamo z naštevanje parametrov vira v URL parameter `fields`:
+```http
+GET https://api.ts.si/razmerja/1233?fields=naziv,aktiven
+```
+```json
+{
+    "id": 1233,
+    "naziv": "Razmerje17",
+    "aktiven": false
+}
+```
+
+### Povezovanje virov
+```http
+GET https://api.ts.si/razmerja/1223
+```
+```json
+{
+ "id": 1223,
+ "naziv": "Razmerje2",
+ "oznaka": "S2",
+ "sektor": {
+ "id": 123123
+ "link": "https://api.skladiapp.si/sektorji/123123"
+ },
+ "tveganje": 2
+}
+```
+
+Slabša integracija v primeru verzioniranja z URL.
+Odjemalec potrebuje več klicov na strežnik, da pridobi vse kar želi o elementu vira.
+
+## Format sporočil
+V kašnem formatu bomo prenašali sporočila definiramo v zaglavju HTTP sporočila, uporabljajo se uveljavljeni MIME formati:
+
+```http
+Content-Type: application/json
+Content-Type: application/xml
+Content-Type: application/pdf
+Content-Type: image/jpeg
+Content-Type: image/gif
+Content-Type: video/mp4
+...
+```
+
+ V zaglavju lahko podamo tudi spremenljiv tip formata zapisa:
+ ```http
+ Accept: application/json,application/xml
+ ```
+
+ Lahko pa jih podamo tudi z URL končnico, takšni zahtevki imajo višjo prioriteto kot zahtevki v zaglavju:
+ ```http
+ https://api.ts.si/sektorji/sektor.json
+ ```
+
+### JSON (JavaScript Object Notation)
+
+```json
+{
+ "id": 3,
+ "naziv": "Razmerje3",
+ "oznaka": "S3",
+ "sektor": {
+ "id": 19,
+ "naziv": "Razviti trgi"
+ },
+ "tveganje": 2,
+ "zadnjaVrednost": {
+ "datum": "2013-10-11T00:00:00.000",
+ "id": 0,
+ "valuta": "EUR",
+ "vrednost": 54.24,
+ }
+}
+```
+
+JSON format ima dobro podporo in je najpogosteje uporabljen v REST storitvah, ker je enostaven za razčlenjevanje, lahko berljiv in učinkovit s porabo prostora.
 
 #### JSON header
  Header si zamislimo sami (pri vseh API klicih naj bo *bolj ali manj* enak). V njem definiramo podatke kot so vsi artikli, preneseni artikli, *offset*...
 ![](./pics/rest02.png)
+
+### XML (Extensible Markup Language)
+Je najpogosteje uporabljen v trenutnih integracijskih rešitvah. Vsebuje podporo validaciji sporočila glede na shemo
+
+```xml
+<razmerje
+xmlns="http://api.ts.si/v1/razmerja">
+ <id>3</id>
+ <naziv>Razmerje3</naziv>
+ <oznaka>S3</oznaka>
+ <sektor>
+ <id>19</id>
+ <naziv>Razviti trgi</naziv>
+ </sektor>
+ <tveganje>2</tveganje>
+ <zadnjaVrednost>
+ <datum>2013-10-11T00:00:00.000</datum>
+ <id>0</id>
+ <valuta>EUR</valuta>
+ <vrednost>54.24</vrednost>
+ </zadnjaVrednost>
+</razmerje>
+```
+
+### Lasten format sporočila
+Lasten format sporočila je nadgradnja osnovnih JSON in XML tipov, če je takšna adaptacija potrebna
+
+```http
+Content-Type: application/si.ts.tipi.registri+json
+```
+
+### Oblika zapisa datuma in časa
+Uporablja se standardni tekstovni zapis ISO 8601 v UTC. S tem omogočimo neodvisnost od programskih okolji in časovni pas uporabnika/storitve
+
+```json
+{
+    ...
+    "ustvarjeno": "2013-10-11T10:12:44.000Z",
+    ...
+}
+```
+
+## Omejevanje dostopa
+Omejevanje dostopa uporabljamo za preprečevanje zlorab. Omejimo lahko posameznega odjemalca ali ptevilo zahtevkov na časovno enoto, če prekoračimo omejitve se vrne HTTP status `429 Too Many Requests`.
+
+Odjemalca obveščamo o omejitvah v HTTP glavi:
+*   `X-Rate-Limit-Limit` - št. dovoljenih zahtevkov v trenutni časovni enoti
+*   `X-Rate-Limit-Remaining` - št. preostalih zahtevkov v trenutni časovni enoti
+*   `X-Rate-Limit-Reset` - št. preostalih sekund v trenutni časovni enoti
+
+## Napake
+Informacije so informative za odjemalec, lahko dodamo informacije za razvijalce.
+```http
+POST https://api.ts.si/razmerja
+```
+Odgovor:
+```http
+422 Unprocessable Entity
+```
+```json
+{
+    "status": 422,
+    "code": 422008,
+    "message": "Neveljavni parametri zahteve",
+    "moreInfo": "https://api.ts.si/doc/napake/422008"
+    "errors": [
+       {
+       "code": 422015,
+       "field": "oznaka",
+       "message": "Zahtevano polje ni podano",
+       "moreInfo": "https://api.ts.si/doc/napake/422015",
+       },
+       ...
+    ]
+}
+```
+
+## Varnost
+REST je stateless, torej se želimo izgoibat sejam, če je to le mogoče. Zaradi tega avtentikacijo realiziramo preko obstoječega protokola (vedno SSL, HTTP Basic avtentikacija, OAuth2, zunanji ali notranji ponudnik). Avtentikacijo realiziramo na osnovi vsebine, ne URL.
+
+Lastno avtentikacijo realiziramo samo v posebnih primerih, saj je obvezna distribucija SDK.
+
+## HTTP medpomnenje
+Uporabljamo standardno HTTP medpomnjenje, kjer v odgovor z virom dodamo informacije o verziji in časovno značko:
+```http
+Etag: 123231abca6c5a4d77ff
+Last-Modified: Mon, 14 Oct 2013 06:12:31 GMT
+```
+Pri nadaljni zahtevi po viru dodamo:
+```http
+If-None-Match: 123231abca6c5a4d77ff
+If-Modified-Since: Mon, 14 Oct 2013 06:12:31 GMT
+```
+Strežnik vrne ali novo instanco ali koto `304 Not Modified`.
+
+## Kompresija vsebine
+Opcijsko lahko kompresiramo vsebimo (velikost se lahko zmanjša do 90%). Uporabljamo standarda `gzip` ali `deflate`.
+
+```http
+Content-Encoding: gzip
+```
+```http
+Accept-Encoding: gzip, deflate
+```
+
+# Storitve REST v Javi
+
+# Medklici
+## HTTP kode
+### Uporabne HTTP kode za uspešno procesiranje
+|HTTP koda|pomen|
+|--|--|
+|`200 Ok`|odgovor na uspešno akcijo|
+|`201 Created`|odgovor na uspešno akcijo, ki rezultira v kreiranje vira|
+|`204 No Content`|odgovor na uspešno akcijo brez vsebine odgovora|
+|`304 Not Modified`|informacija odjemalcu, da drži aktualno medpomnjeno instanco|
+
+### Uporabne HTTP kode za napake
+|HTTP koda|pomen|
+|--|--|
+|`400 Bad Request`|zahteva je neustrezno oblikovana, vsebine ni mogoče razčleniti, podatki manjkajo|
+|`401 Unauthorized`|avtentikacija ni uspešna|
+|`403 Forbidden`|avtorizacija do vira ni uspešna|
+|`404 Not Found`|zahteva po viru, ki ne obstaja|
+|`405 Method Not Allowed`|zahteva po HTTP metodi, ki uporabniku ni dovoljena|
+|`410 Gone`|vir ne obstaja več|
+|`415 Unsupported Media Type`|tip vsebine ni veljaven|
+|`422 Unprocessable Entity`|validacijske napaka|
+|`500 Internal Server Error`|generalna napaka na strežniku|
 
