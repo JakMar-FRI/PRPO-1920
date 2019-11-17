@@ -75,7 +75,6 @@
   - [CDI zrna](#cdi-zrna)
   - [Doseg CDI](#doseg-cdi)
   - [Prestrezniki (Interceptors)](#prestrezniki-interceptors)
-- [Storitve REST v Javi](#storitve-rest-v-javi)
 - [Medklici](#medklici)
   - [HTTP kode](#http-kode)
     - [Uporabne HTTP kode za uspešno procesiranje](#uporabne-http-kode-za-uspe%c5%a1no-procesiranje)
@@ -1582,7 +1581,94 @@ Content-Encoding: gzip
 Accept-Encoding: gzip, deflate
 ```
 
-# Storitve REST v Javi
+## Storitve REST v Javi
+REST storitve v Javi implementiramo s pomočjo **JAX-RS** (Java API for RESTful Web Services), ki je del uradne implementacije Java EE 7.
+
+### REST aplikacija
+REST aplikacijo definiramo z aplikacijskim razredom, z `@ApplicationPath` definiramo relativno pot namestitve rest aplikacije (*primer poti. http://api.skladi.si/v1*) :
+
+```java
+@ApplicationPath("/v1")
+public class RestStoritve extends javax.ws.rs.core.Application {
+
+    @Override
+    public Set<Class<?>> getClasses() {
+        Set<Class<?>> resources = new java.util.HashSet<Class<?>>();
+        resources.add(RazmerjaStoritev.class);
+        return resources;
+    }
+}
+```
+
+REST storitve in njene vire umestimo z anotacijo `@Path`
+```java
+@Path("razmerja")
+public class RazmerjaStoritev {
+    public Response vrniRazmerja(...) {...}
+
+    @Path("{id}")
+    public Response vrniRazmerje(...){...}
+
+    @Path("{id}/vrednosti")
+    public Response vrniVrednosti(...){...}
+
+    @Path("{id}/vrednosti/{idVrednosti}")
+    public Response vrniVrednost(...){...}
+}
+```
+
+Za anotacijami definiramo katere HTTP akcije implementirajo katere javne metode storitve
+```java
+@GET
+@Path("{id}")
+public Response vrniRazmerje(...){...}
+
+@POST
+public Response dodajRazmerje(...){...}
+
+@PUT
+@Path("{id}")
+public Response posodobiRazmerje(...){...}
+
+@DELETE
+@Path("{id}")
+public Response odstraniRazmerje (...){...}
+```
+
+#### Parametri poti virov
+Parametre lahko definiramo z regularnim izrazom in ga definiramo z anotacijo `@PathParam`
+
+```java
+@Path("{id}/vrednosti/{idVrednosti: \d{4}-\d{2}-\d{2}}")
+public Response vrniVrednost(
+        @PathParam("id")
+        String skladId,
+        @PathParam("idVrednosti")
+        String vrednostId
+) {
+    ...
+}
+```
+
+Ostale anotacije za vstavljanje vrednosti parametrov so:
+|Anotacija||
+|--|--|
+|`@QueryParam`| za parametre povpraševanja *../skladi?filter=naziv*|
+|`@HeaderParam`|za vrednosti HTTP zaglavja|
+|`@MatrixParam`|za matrične vrednosti *../skladi;filter=aktivni/vrednosti;items=6*|
+|`@CookieParam`|za vrednosti prejetih piškotkov|
+|`@FormParam`|za vrednosti spletnih obrazcev|
+|`@DefaultValue`|za privzete vrednosti|
+
+```java
+public Response vrniRazmerja (
+        @DefaultValue("*")
+        @QueryParam("filter")
+        String filter
+) {... }
+```
+
+
 
 # Medklici
 ## HTTP kode

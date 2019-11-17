@@ -550,26 +550,16 @@ void 0!==arguments[0]&&(br.sequenceConfig=arguments[0]),e=arguments[1]):e=argume
 <ul>
 <li><a href="#cdi-zrna">CDI zrna</a></li>
 <li><a href="#doseg-cdi">Doseg CDI</a></li>
-<li><a href="#prestrezniki-interceptors">Prestrezniki (Interceptors)</a>
-<ul>
-<li><a href="#get-za-branje-vira"><code>GET</code> za branje vira</a>
-<ul>
-<li><a href="#get-za-branje-dolo%c4%8denega-vira"><code>GET</code> za branje določenega vira</a></li>
-<li><a href="#get-na-viru"><code>GET</code> na viru</a></li>
+<li><a href="#prestrezniki-interceptors">Prestrezniki (Interceptors)</a></li>
 </ul>
 </li>
-<li><a href="#post-za-ustvarjanje"><code>POST</code> za ustvarjanje</a></li>
-<li><a href="#put-za-posodabljanje">```PUT`` za posodabljanje</a></li>
-<li><a href="#delete-za-brisanje"><code>DELETE</code> za brisanje</a></li>
-</ul>
-</li>
-<li><a href="#fornat-sporo%c4%8dil">Fornat sporočil</a>
+<li><a href="#storitve-rest-v-javi">Storitve REST v Javi</a></li>
+<li><a href="#medklici">Medklici</a>
 <ul>
-<li><a href="#json">JSON</a>
+<li><a href="#http-kode">HTTP kode</a>
 <ul>
-<li><a href="#json-header">JSON header</a></li>
-</ul>
-</li>
+<li><a href="#uporabne-http-kode-za-uspe%c5%a1no-procesiranje">Uporabne HTTP kode za uspešno procesiranje</a></li>
+<li><a href="#uporabne-http-kode-za-napake">Uporabne HTTP kode za napake</a></li>
 </ul>
 </li>
 </ul>
@@ -1864,7 +1854,10 @@ Jurič, 4.11.2019</p>
 <p><em>Pol so prišli malo boljši časi, manj stari časi.</em>
 Jurišič, 11.11</p>
 </blockquote>
-<h1 id="rest">REST</h1>
+<h1 id="representational-state-transfer-rest">Representational State Transfer (REST)</h1>
+<p><strong>REST</strong> je arhitekturni stil, ki izvaja abstrakcijo arhitekturnih elementov znotraj distribuiranih hipermedijskih sistemov (odjemalec-strežnik). Je brez stanja z močno uporabo medpomnenja.</p>
+<p>Ključne lastnosti REST-a so: skalabilnost, splošnost, neodvisnost, odzivnost na spremembe, latenca, varnost in enkapsulacija.</p>
+<p><strong>HATEOAS</strong> (Hypermedia as the engine of application state) je dodatna omejitev REST arhitekture, ki definira naj odjemalec komunicira z aplikacijo preko omrežja zgolj preko hipermedija, ki ga dinamično streže strežnik. Kot posledica REST odjemalec vstopa preko znane vstopne točke v sistem.</p>
 <h2 id="zgodovinski-razvoj-vmesnikov">Zgodovinski razvoj vmesnikov</h2>
 <ul>
 <li>binarni
@@ -1883,13 +1876,63 @@ Jurišič, 11.11</p>
 <li>gRPC (spet binarni)</li>
 </ul>
 <p><img src="./pics/rest01.png" alt=""></p>
-<h2 id="api-in-http-metode">API in HTTP metode</h2>
-<pre class="hljs"><code><div>vrniSeznamArtiklov();
-izvediPlacilo();
-dodajArtikel();
-posodobiArtikel();
-</div></code></pre>
-<p>Za dostop do metod uporabimo <code>HTTP</code> metode:</p>
+<h2 id="oblikovanje-restful-storitev">Oblikovanje RESTful storitev</h2>
+<p><strong>RESTful spletni API</strong> ali <strong>RESTful spletna storitev</strong> deluje na osnovi REST arhitekture in HTTP protokola.</p>
+<p>REST storitve gradijo spletni API, ki je razumljiv razvijalcu izven okolja razvoja storitve. Uporaben je preko naslove vrstice brskalnika, zato je preprost, intuitiven in konsistenten, vendar hkratu tudi razširljiv in efektiven.</p>
+<p><img src="./pics/REST001.jpg" alt=""></p>
+<h2 id="viri-api-storitve">Viri API storitve</h2>
+<p>Vire oblikujemo enostavno in učinkovito, po strategiji <strong>grobo zrnato, samostalniki v množini</strong>.</p>
+<table>
+<thead>
+<tr>
+<th>Vir zbirke</th>
+<th>Vir instance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>/razmerja</td>
+<td>/razmerja/2234</td>
+</tr>
+</tbody>
+</table>
+<h2 id="akcije">Akcije</h2>
+<p>Uporabljajo se standardne HTTP metode</p>
+<table>
+<thead>
+<tr>
+<th>HTTP metoda</th>
+<th>pomen</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET</code></td>
+<td>metoda pridobiva podatke iz strani strežnika (branje)</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td>ustvarjanje novega vira</td>
+</tr>
+<tr>
+<td><code>PUT</code></td>
+<td>posodabljanje celotnega obstoječega vira</td>
+</tr>
+<tr>
+<td><code>DELETE</code></td>
+<td>brisanje vira</td>
+</tr>
+<tr>
+<td><code>HEAD</code></td>
+<td>branje HTTP zaglavja brez vsebine</td>
+</tr>
+<tr>
+<td><code>PATCH</code></td>
+<td>delno posodabljanje obstoječega vira</td>
+</tr>
+</tbody>
+</table>
+<p>Primeri poizvedb:</p>
 <table>
 <thead>
 <tr>
@@ -1926,28 +1969,39 @@ posodobiArtikel();
 </tr>
 </tbody>
 </table>
-<p><em>Vire oblikujemo enostavno in učinkovito (grobo zrnato, samostalniki v množini)</em>
-Ustvarjamo lahko nove pod vire <code>GET artikel/345/akcija</code></p>
-<table>
-<thead>
-<tr>
-<th>Vir zbirke</th>
-<th>Vir instance</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>/razmerja</td>
-<td>/razmerja/<em>id_razmerja</em></td>
-</tr>
-</tbody>
-</table>
-<blockquote>
-<p><em>&quot;A se še kaj spomnite slovenščine iz srednje šole? Samostalnik, pridevnik,... Šalim se, saj vem da se&quot;</em>
-Jurič</p>
-</blockquote>
-<h3 id="get-za-branje-vira"><code>GET</code> za branje vira</h3>
-<h4 id="get-za-branje-dolo%C4%8Denega-vira"><code>GET</code> za branje določenega vira</h4>
+<h3 id="get"><code>GET</code></h3>
+<ul>
+<li>za branje celotnega vira:<pre class="hljs"><code><div><span class="hljs-attribute">GET /razmerja
+</span></div></code></pre>
+odgovor s HTTP kodo 200:<pre class="hljs"><code><div><span class="hljs-number">200</span> OK
+[
+    {
+        <span class="hljs-attr">"id"</span>: <span class="hljs-number">12345</span>,
+        <span class="hljs-attr">"naziv"</span>: <span class="hljs-string">"Razmerje1"</span>,
+        ...
+    }, 
+    {
+        <span class="hljs-attr">"id"</span>: <span class="hljs-number">12344</span>,
+        <span class="hljs-attr">"naziv"</span>: <span class="hljs-string">"Razmerje2"</span>,
+        ...
+    },
+    ...
+]
+</div></code></pre>
+</li>
+<li>za branje specifičnega vira<pre class="hljs"><code><div><span class="hljs-attribute">GET /razmerje/12345
+</span></div></code></pre>
+odgovor z HTTP kodo 200<pre class="hljs"><code><div><span class="hljs-number">200</span> ok
+[
+    {
+        <span class="hljs-attr">"id"</span>: <span class="hljs-number">12345</span>,
+        <span class="hljs-attr">"naziv"</span>: <span class="hljs-string">"Razmerje1"</span>,
+        ...
+    }
+]
+</div></code></pre>
+</li>
+</ul>
 <h4 id="get-na-viru"><code>GET</code> na viru</h4>
 <table>
 <thead>
@@ -1971,19 +2025,370 @@ Jurič</p>
 </tr>
 </tbody>
 </table>
-<h3 id="post-za-ustvarjanje"><code>POST</code> za ustvarjanje</h3>
-<h3 id="put-za-posodabljanje">```PUT`` za posodabljanje</h3>
-<h3 id="delete-za-brisanje"><code>DELETE</code> za brisanje</h3>
+<h3 id="post"><code>POST</code></h3>
+<p>Pošilja se glava:</p>
+<pre class="hljs"><code><div><span class="hljs-attribute">POST /razmerja
+</span></div></code></pre>
+<p>in telo:</p>
+<pre class="hljs"><code><div>{
+    <span class="hljs-attr">"naziv"</span>: <span class="hljs-string">"Razmerje5"</span>,
+    ...
+}
+</div></code></pre>
+<p>Kot odgovor se vrača rezultat o ustvarjenem viru s priporočeno kodo 201</p>
+<pre class="hljs"><code><div><span class="hljs-attribute">201 Created
+Location</span>: https://api.jazjaz.si/razmerje/3456
+
+<span class="clojure">{
+    <span class="hljs-string">"id"</span>: <span class="hljs-number">3456</span>,
+    <span class="hljs-string">"naziv"</span>: <span class="hljs-string">"Razmerje5"</span>,
+    ...
+}
+</span></div></code></pre>
+<h3 id="put"><code>PUT</code></h3>
+<p><code>PUT</code> uporabimo za posodabljanje celotnega vira</p>
+<pre class="hljs"><code><div><span class="hljs-attribute">PUT /razmerja/3456
+</span></div></code></pre>
+<pre class="hljs"><code><div>{
+    <span class="hljs-attr">"id"</span>: <span class="hljs-number">12345</span>,
+    <span class="hljs-attr">"naziv"</span>: <span class="hljs-string">"Razmerje1"</span>,
+    <span class="hljs-attr">"tveganje"</span>: <span class="hljs-number">4</span>,
+    ...
+}
+</div></code></pre>
+<p>Kot odgovor pridobimo HTTP kodo 200:</p>
+<pre class="hljs"><code><div><span class="hljs-attribute">200 OK
+</span></div></code></pre>
+<pre class="hljs"><code><div>{
+    <span class="hljs-attr">"id"</span>:<span class="hljs-number">12345</span>,
+    ...
+}
+</div></code></pre>
+<h3 id="delete"><code>DELETE</code></h3>
+<p><code>DELETE</code> uporabimo za brisanje elementa vira in se izvede na instanci vira. Telo mora biti brazno (pošiljamo samo glavo, URI).</p>
+<pre class="hljs"><code><div><span class="hljs-attribute">DELETE /skladi/AABB22
+</span></div></code></pre>
+<p>Kot odgovor pridobimo prazno telo s HTTP kodo 204 (No Content):</p>
+<pre class="hljs"><code><div><span class="hljs-attribute">204 No Content
+</span></div></code></pre>
+<h3 id="ne-crud-akcije">Ne-CRUD akcije</h3>
+<p>Akcije, ki ne spadajo pod CRUD operacije lahko vključimo na več načinov:</p>
+<ul>
+<li>restrukturiranje akcije, da jo predstavimo kot polje na viru</li>
+<li>obravnavamo ga kot pod vir<pre class="hljs"><code><div><span class="hljs-attribute">POST /razmerje/3214/skleni
+POST /razmerja/3214/prekini
+</span></div></code></pre>
+</li>
+<li>če ga ne moremo predstaviti z enim virom, ustvarimo nov navidezni vir<pre class="hljs"><code><div><span class="hljs-attribute">POST /iskanje
+</span></div></code></pre>
+</li>
+</ul>
+<h4 id="iskanje-med-zbirkami">Iskanje med zbirkami</h4>
+<pre class="hljs"><code><div><span class="hljs-attribute">GET https://api.ts.si/razmerja?prioriteta=5
+
+GET https://api.ts.si/razmerja?where=vrednost:gte:521
+</span></div></code></pre>
+<p>Sortiranje rezultatov:</p>
+<pre class="hljs"><code><div><span class="hljs-attribute">GET https://api.ts.si/razmerja?order=naziv ASC, prioriteta DESC
+</span></div></code></pre>
+<p>Generični iskalni parameter <code>q</code>:</p>
+<pre class="hljs"><code><div><span class="hljs-attribute">GET https://api.ts.si/razmerja?q=alta
+</span></div></code></pre>
+<p>Za pogoste poizvedbe lahko naredimo aliase, namesto:</p>
+<pre class="hljs"><code><div><span class="hljs-attribute">GET https://api.ts.si/novice?date=
+</span></div></code></pre>
+<p>dobimo</p>
+<pre class="hljs"><code><div><span class="hljs-attribute">GET https://api.ts.si/novice/danes
+</span></div></code></pre>
+<p>Iskalne vire lahko kombiniramo z znakom in <code>q</code>.</p>
 <blockquote>
-<h3 id="medklic-minormajor-verzije-in-kompatibilnost-za-nazaj"><em>Medklic</em>: minor/major verzije in kompatibilnost za nazaj</h3>
-<p><strong>Minor</strong> verzije (1.0, 1.1, 1.2) so kompatibilne za nazaj
-<strong>Major</strong> verzije (1.x, 2.x) niso kompatibilne za nazaj - različne major verzije imajo svoj url <code>api.url/v1/...</code>, <code>api.url/v2/...</code></p>
+<p><em>&quot;A se še kaj spomnite slovenščine iz srednje šole? Samostalnik, pridevnik,... Šalim se, saj vem da se&quot;</em><br>
+Jurič</p>
 </blockquote>
-<h2 id="fornat-sporo%C4%8Dil">Fornat sporočil</h2>
-<h3 id="json">JSON</h3>
+<h4 id="ostranjevanje-zbirk">Ostranjevanje zbirk</h4>
+<p>Z uporabo parametrov <code>offset</code> in <code>limit</code>:</p>
+<pre class="hljs"><code><div><span class="hljs-attribute">GET https://api.ts.si/razmerja?offset=50&amp;limit=25
+</span></div></code></pre>
+<p>Odgovor:</p>
+<pre class="hljs"><code><div><span class="hljs-attribute">Link</span>: &lt;https://api.ts.si/razmerja?offset=50&amp;limit=0&gt;;rel=prev,&lt;https://api.ts.si/razmerja?offset=50&amp;limit=75&gt;;rel=next,
+</div></code></pre>
+<p>ali (nepriporočljivo):</p>
+<pre class="hljs"><code><div>{
+ <span class="hljs-attr">"metadata"</span>: {
+ <span class="hljs-attr">"offset"</span>: <span class="hljs-number">50</span>,
+ <span class="hljs-attr">"limit"</span>: <span class="hljs-number">25</span>,
+ <span class="hljs-attr">"total"</span>: <span class="hljs-number">252</span>
+ },
+ <span class="hljs-attr">"data"</span>: [
+...
+ ]
+}
+</div></code></pre>
+<h2 id="pot-do-virov">Pot do virov</h2>
+<p>Enostaven URL omogoča lažjo interpretacijo razvijalcem, vendar osnovni URL do storitve tehnološko ni pomemben</p>
+<pre class="hljs"><code><div><span class="hljs-attribute">https://www.ts.su/razvoj/storitve/api/rest/
+
+https://api.ts.si/
+</span></div></code></pre>
+<h3 id="verzioniranje">Verzioniranje</h3>
+<p>Verzioniramo lahko na 3 načine:</p>
+<ul>
+<li>
+<p>verzinoniranje z URL naslovi</p>
+<pre class="hljs"><code><div><span class="hljs-attribute">https://api.ts.si/storitve/...
+https://api.ts.si/v1/storitve/...
+</span></div></code></pre>
+<blockquote>
+<p><strong>Minor</strong> verzije (1.0, 1.1, 1.2) so kompatibilne za nazaj</p>
+<p><strong>Major</strong> verzije (1.x, 2.x) niso kompatibilne za nazaj - različne major verzije imajo svoj url</p>
+<pre class="hljs"><code><div><span class="hljs-attribute">api.url/v1/...
+api.url/v2/...
+</span></div></code></pre>
+</blockquote>
+</li>
+<li>
+<p>verzioniranje s pomočjo MIME formata sporočila:</p>
+<pre class="hljs"><code><div><span class="hljs-attribute">Content-Type</span>: application/si.ts.v1.razmerje.json
+<span class="hljs-attribute">Content-Type</span>: application/si.ts.v1.razmerje.json;v=1
+</div></code></pre>
+<p>Ta princip je pravilnejši, saj ohranja URL naslove virov, vendar je težji za razumevanje in formuliranje ter ima slabšo podporo.</p>
+</li>
+<li>
+<p>Verzioniranje s pomočjo dodatnega poljubnega polja v HTTP glavi</p>
+<pre class="hljs"><code><div><span class="hljs-attribute">X-API-Version</span>: v1
+</div></code></pre>
+<p>Če se polje ne poda, se uporabi privzeta verzija. Ker gre za nestandardno polje je podpora slabša.</p>
+</li>
+</ul>
+<p>Dobre prakse verzioniranja vključujejo:</p>
+<ol>
+<li>Verzionira se samo <em>major</em> vezije</li>
+<li>Druge (manjše) spremembe (<em>minor</em> verzije) obdržijo kompatibilnost za nazaj</li>
+<li>Stare <em>major</em> verzije delujejo še določen čas za lažji prehod odjemalcev</li>
+</ol>
+<h3 id="delne-predstavitve-virov">Delne predstavitve virov</h3>
+<p>API naj omogoči delne predstavitve virov, saj uporabnik ne potrebuje vedno celotne predstavitve. Polja določamo z naštevanje parametrov vira v URL parameter <code>fields</code>:</p>
+<pre class="hljs"><code><div><span class="hljs-attribute">GET https://api.ts.si/razmerja/1233?fields=naziv,aktiven
+</span></div></code></pre>
+<pre class="hljs"><code><div>{
+    <span class="hljs-attr">"id"</span>: <span class="hljs-number">1233</span>,
+    <span class="hljs-attr">"naziv"</span>: <span class="hljs-string">"Razmerje17"</span>,
+    <span class="hljs-attr">"aktiven"</span>: <span class="hljs-literal">false</span>
+}
+</div></code></pre>
+<h3 id="povezovanje-virov">Povezovanje virov</h3>
+<pre class="hljs"><code><div><span class="hljs-attribute">GET https://api.ts.si/razmerja/1223
+</span></div></code></pre>
+<pre class="hljs"><code><div>{
+ <span class="hljs-attr">"id"</span>: <span class="hljs-number">1223</span>,
+ <span class="hljs-attr">"naziv"</span>: <span class="hljs-string">"Razmerje2"</span>,
+ <span class="hljs-attr">"oznaka"</span>: <span class="hljs-string">"S2"</span>,
+ <span class="hljs-attr">"sektor"</span>: {
+ <span class="hljs-attr">"id"</span>: <span class="hljs-number">123123</span>
+ <span class="hljs-string">"link"</span>: <span class="hljs-string">"https://api.skladiapp.si/sektorji/123123"</span>
+ },
+ <span class="hljs-attr">"tveganje"</span>: <span class="hljs-number">2</span>
+}
+</div></code></pre>
+<p>Slabša integracija v primeru verzioniranja z URL.
+Odjemalec potrebuje več klicov na strežnik, da pridobi vse kar želi o elementu vira.</p>
+<h2 id="format-sporo%C4%8Dil">Format sporočil</h2>
+<p>V kašnem formatu bomo prenašali sporočila definiramo v zaglavju HTTP sporočila, uporabljajo se uveljavljeni MIME formati:</p>
+<pre class="hljs"><code><div><span class="hljs-attribute">Content-Type</span>: application/json
+<span class="hljs-attribute">Content-Type</span>: application/xml
+<span class="hljs-attribute">Content-Type</span>: application/pdf
+<span class="hljs-attribute">Content-Type</span>: image/jpeg
+<span class="hljs-attribute">Content-Type</span>: image/gif
+<span class="hljs-attribute">Content-Type</span>: video/mp4
+...
+</div></code></pre>
+<p>V zaglavju lahko podamo tudi spremenljiv tip formata zapisa:</p>
+<pre class="hljs"><code><div><span class="hljs-attribute">Accept</span>: application/json,application/xml
+</div></code></pre>
+<p>Lahko pa jih podamo tudi z URL končnico, takšni zahtevki imajo višjo prioriteto kot zahtevki v zaglavju:</p>
+<pre class="hljs"><code><div><span class="hljs-attribute">https://api.ts.si/sektorji/sektor.json
+</span></div></code></pre>
+<h3 id="json-javascript-object-notation">JSON (JavaScript Object Notation)</h3>
+<pre class="hljs"><code><div>{
+ <span class="hljs-attr">"id"</span>: <span class="hljs-number">3</span>,
+ <span class="hljs-attr">"naziv"</span>: <span class="hljs-string">"Razmerje3"</span>,
+ <span class="hljs-attr">"oznaka"</span>: <span class="hljs-string">"S3"</span>,
+ <span class="hljs-attr">"sektor"</span>: {
+ <span class="hljs-attr">"id"</span>: <span class="hljs-number">19</span>,
+ <span class="hljs-attr">"naziv"</span>: <span class="hljs-string">"Razviti trgi"</span>
+ },
+ <span class="hljs-attr">"tveganje"</span>: <span class="hljs-number">2</span>,
+ <span class="hljs-attr">"zadnjaVrednost"</span>: {
+ <span class="hljs-attr">"datum"</span>: <span class="hljs-string">"2013-10-11T00:00:00.000"</span>,
+ <span class="hljs-attr">"id"</span>: <span class="hljs-number">0</span>,
+ <span class="hljs-attr">"valuta"</span>: <span class="hljs-string">"EUR"</span>,
+ <span class="hljs-attr">"vrednost"</span>: <span class="hljs-number">54.24</span>,
+ }
+}
+</div></code></pre>
+<p>JSON format ima dobro podporo in je najpogosteje uporabljen v REST storitvah, ker je enostaven za razčlenjevanje, lahko berljiv in učinkovit s porabo prostora.</p>
 <h4 id="json-header">JSON header</h4>
 <p>Header si zamislimo sami (pri vseh API klicih naj bo <em>bolj ali manj</em> enak). V njem definiramo podatke kot so vsi artikli, preneseni artikli, <em>offset</em>...
 <img src="./pics/rest02.png" alt=""></p>
+<h3 id="xml-extensible-markup-language">XML (Extensible Markup Language)</h3>
+<p>Je najpogosteje uporabljen v trenutnih integracijskih rešitvah. Vsebuje podporo validaciji sporočila glede na shemo</p>
+<pre class="hljs"><code><div><span class="hljs-tag">&lt;<span class="hljs-name">razmerje</span>
+<span class="hljs-attr">xmlns</span>=<span class="hljs-string">"http://api.ts.si/v1/razmerja"</span>&gt;</span>
+ <span class="hljs-tag">&lt;<span class="hljs-name">id</span>&gt;</span>3<span class="hljs-tag">&lt;/<span class="hljs-name">id</span>&gt;</span>
+ <span class="hljs-tag">&lt;<span class="hljs-name">naziv</span>&gt;</span>Razmerje3<span class="hljs-tag">&lt;/<span class="hljs-name">naziv</span>&gt;</span>
+ <span class="hljs-tag">&lt;<span class="hljs-name">oznaka</span>&gt;</span>S3<span class="hljs-tag">&lt;/<span class="hljs-name">oznaka</span>&gt;</span>
+ <span class="hljs-tag">&lt;<span class="hljs-name">sektor</span>&gt;</span>
+ <span class="hljs-tag">&lt;<span class="hljs-name">id</span>&gt;</span>19<span class="hljs-tag">&lt;/<span class="hljs-name">id</span>&gt;</span>
+ <span class="hljs-tag">&lt;<span class="hljs-name">naziv</span>&gt;</span>Razviti trgi<span class="hljs-tag">&lt;/<span class="hljs-name">naziv</span>&gt;</span>
+ <span class="hljs-tag">&lt;/<span class="hljs-name">sektor</span>&gt;</span>
+ <span class="hljs-tag">&lt;<span class="hljs-name">tveganje</span>&gt;</span>2<span class="hljs-tag">&lt;/<span class="hljs-name">tveganje</span>&gt;</span>
+ <span class="hljs-tag">&lt;<span class="hljs-name">zadnjaVrednost</span>&gt;</span>
+ <span class="hljs-tag">&lt;<span class="hljs-name">datum</span>&gt;</span>2013-10-11T00:00:00.000<span class="hljs-tag">&lt;/<span class="hljs-name">datum</span>&gt;</span>
+ <span class="hljs-tag">&lt;<span class="hljs-name">id</span>&gt;</span>0<span class="hljs-tag">&lt;/<span class="hljs-name">id</span>&gt;</span>
+ <span class="hljs-tag">&lt;<span class="hljs-name">valuta</span>&gt;</span>EUR<span class="hljs-tag">&lt;/<span class="hljs-name">valuta</span>&gt;</span>
+ <span class="hljs-tag">&lt;<span class="hljs-name">vrednost</span>&gt;</span>54.24<span class="hljs-tag">&lt;/<span class="hljs-name">vrednost</span>&gt;</span>
+ <span class="hljs-tag">&lt;/<span class="hljs-name">zadnjaVrednost</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">razmerje</span>&gt;</span>
+</div></code></pre>
+<h3 id="lasten-format-sporo%C4%8Dila">Lasten format sporočila</h3>
+<p>Lasten format sporočila je nadgradnja osnovnih JSON in XML tipov, če je takšna adaptacija potrebna</p>
+<pre class="hljs"><code><div><span class="hljs-attribute">Content-Type</span>: application/si.ts.tipi.registri+json
+</div></code></pre>
+<h3 id="oblika-zapisa-datuma-in-%C4%8Dasa">Oblika zapisa datuma in časa</h3>
+<p>Uporablja se standardni tekstovni zapis ISO 8601 v UTC. S tem omogočimo neodvisnost od programskih okolji in časovni pas uporabnika/storitve</p>
+<pre class="hljs"><code><div>{
+    ...
+    <span class="hljs-attr">"ustvarjeno"</span>: <span class="hljs-string">"2013-10-11T10:12:44.000Z"</span>,
+    ...
+}
+</div></code></pre>
+<h2 id="omejevanje-dostopa">Omejevanje dostopa</h2>
+<p>Omejevanje dostopa uporabljamo za preprečevanje zlorab. Omejimo lahko posameznega odjemalca ali ptevilo zahtevkov na časovno enoto, če prekoračimo omejitve se vrne HTTP status <code>429 Too Many Requests</code>.</p>
+<p>Odjemalca obveščamo o omejitvah v HTTP glavi:</p>
+<ul>
+<li><code>X-Rate-Limit-Limit</code> - št. dovoljenih zahtevkov v trenutni časovni enoti</li>
+<li><code>X-Rate-Limit-Remaining</code> - št. preostalih zahtevkov v trenutni časovni enoti</li>
+<li><code>X-Rate-Limit-Reset</code> - št. preostalih sekund v trenutni časovni enoti</li>
+</ul>
+<h2 id="napake">Napake</h2>
+<p>Informacije so informative za odjemalec, lahko dodamo informacije za razvijalce.</p>
+<pre class="hljs"><code><div><span class="hljs-attribute">POST https://api.ts.si/razmerja
+</span></div></code></pre>
+<p>Odgovor:</p>
+<pre class="hljs"><code><div><span class="hljs-attribute">422 Unprocessable Entity
+</span></div></code></pre>
+<pre class="hljs"><code><div>{
+    <span class="hljs-attr">"status"</span>: <span class="hljs-number">422</span>,
+    <span class="hljs-attr">"code"</span>: <span class="hljs-number">422008</span>,
+    <span class="hljs-attr">"message"</span>: <span class="hljs-string">"Neveljavni parametri zahteve"</span>,
+    <span class="hljs-attr">"moreInfo"</span>: <span class="hljs-string">"https://api.ts.si/doc/napake/422008"</span>
+    <span class="hljs-string">"errors"</span>: [
+       {
+       <span class="hljs-attr">"code"</span>: <span class="hljs-number">422015</span>,
+       <span class="hljs-attr">"field"</span>: <span class="hljs-string">"oznaka"</span>,
+       <span class="hljs-attr">"message"</span>: <span class="hljs-string">"Zahtevano polje ni podano"</span>,
+       <span class="hljs-attr">"moreInfo"</span>: <span class="hljs-string">"https://api.ts.si/doc/napake/422015"</span>,
+       },
+       ...
+    ]
+}
+</div></code></pre>
+<h2 id="varnost">Varnost</h2>
+<p>REST je stateless, torej se želimo izgoibat sejam, če je to le mogoče. Zaradi tega avtentikacijo realiziramo preko obstoječega protokola (vedno SSL, HTTP Basic avtentikacija, OAuth2, zunanji ali notranji ponudnik). Avtentikacijo realiziramo na osnovi vsebine, ne URL.</p>
+<p>Lastno avtentikacijo realiziramo samo v posebnih primerih, saj je obvezna distribucija SDK.</p>
+<h2 id="http-medpomnenje">HTTP medpomnenje</h2>
+<p>Uporabljamo standardno HTTP medpomnjenje, kjer v odgovor z virom dodamo informacije o verziji in časovno značko:</p>
+<pre class="hljs"><code><div><span class="hljs-attribute">Etag</span>: 123231abca6c5a4d77ff
+<span class="hljs-attribute">Last-Modified</span>: Mon, 14 Oct 2013 06:12:31 GMT
+</div></code></pre>
+<p>Pri nadaljni zahtevi po viru dodamo:</p>
+<pre class="hljs"><code><div><span class="hljs-attribute">If-None-Match</span>: 123231abca6c5a4d77ff
+<span class="hljs-attribute">If-Modified-Since</span>: Mon, 14 Oct 2013 06:12:31 GMT
+</div></code></pre>
+<p>Strežnik vrne ali novo instanco ali koto <code>304 Not Modified</code>.</p>
+<h2 id="kompresija-vsebine">Kompresija vsebine</h2>
+<p>Opcijsko lahko kompresiramo vsebimo (velikost se lahko zmanjša do 90%). Uporabljamo standarda <code>gzip</code> ali <code>deflate</code>.</p>
+<pre class="hljs"><code><div><span class="hljs-attribute">Content-Encoding</span>: gzip
+</div></code></pre>
+<pre class="hljs"><code><div><span class="hljs-attribute">Accept-Encoding</span>: gzip, deflate
+</div></code></pre>
+<h1 id="storitve-rest-v-javi">Storitve REST v Javi</h1>
+<h1 id="medklici">Medklici</h1>
+<h2 id="http-kode">HTTP kode</h2>
+<h3 id="uporabne-http-kode-za-uspe%C5%A1no-procesiranje">Uporabne HTTP kode za uspešno procesiranje</h3>
+<table>
+<thead>
+<tr>
+<th>HTTP koda</th>
+<th>pomen</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>200 Ok</code></td>
+<td>odgovor na uspešno akcijo</td>
+</tr>
+<tr>
+<td><code>201 Created</code></td>
+<td>odgovor na uspešno akcijo, ki rezultira v kreiranje vira</td>
+</tr>
+<tr>
+<td><code>204 No Content</code></td>
+<td>odgovor na uspešno akcijo brez vsebine odgovora</td>
+</tr>
+<tr>
+<td><code>304 Not Modified</code></td>
+<td>informacija odjemalcu, da drži aktualno medpomnjeno instanco</td>
+</tr>
+</tbody>
+</table>
+<h3 id="uporabne-http-kode-za-napake">Uporabne HTTP kode za napake</h3>
+<table>
+<thead>
+<tr>
+<th>HTTP koda</th>
+<th>pomen</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>400 Bad Request</code></td>
+<td>zahteva je neustrezno oblikovana, vsebine ni mogoče razčleniti, podatki manjkajo</td>
+</tr>
+<tr>
+<td><code>401 Unauthorized</code></td>
+<td>avtentikacija ni uspešna</td>
+</tr>
+<tr>
+<td><code>403 Forbidden</code></td>
+<td>avtorizacija do vira ni uspešna</td>
+</tr>
+<tr>
+<td><code>404 Not Found</code></td>
+<td>zahteva po viru, ki ne obstaja</td>
+</tr>
+<tr>
+<td><code>405 Method Not Allowed</code></td>
+<td>zahteva po HTTP metodi, ki uporabniku ni dovoljena</td>
+</tr>
+<tr>
+<td><code>410 Gone</code></td>
+<td>vir ne obstaja več</td>
+</tr>
+<tr>
+<td><code>415 Unsupported Media Type</code></td>
+<td>tip vsebine ni veljaven</td>
+</tr>
+<tr>
+<td><code>422 Unprocessable Entity</code></td>
+<td>validacijske napaka</td>
+</tr>
+<tr>
+<td><code>500 Internal Server Error</code></td>
+<td>generalna napaka na strežniku</td>
+</tr>
+</tbody>
+</table>
 
 </body>
 </html>
