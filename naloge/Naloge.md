@@ -148,3 +148,69 @@ localhost:8080/servlet
 ```
 
 **Celotna koda prve naloge je objavljena v repozitoriju, v branchu `naloga1`**.
+
+# Naloga 2: dostop do baze z JDBC
+## Priprava Docker vsebnika
+### Instalacija Docker-ja
+["Prava instalacija"](https://docs.docker.com/docker-for-windows/) - potrebna PRO verzija Windowsev, omogočen Hyper-v
+
+["Legacy verzija"](https://docs.docker.com/toolbox/toolbox_install_windows/) - ni potrebna PRO verzija Windowsev, ustvari se Linux virtualka
+
+### Priprava vsebnika
+Docker vsebnik s postgresql bazo poženemo z ukazom:
+```
+docker run -d --name <ime vsebnika> -e POSTGRES_USER=<ime uporabnika> -e POSTGRES_PASSWORD=<geslo za dostop> -e POSTGRES_DB=<ime baze> -p <port za dostop> postgres:12
+```
+
+Privzeto za naš projekt:
+```
+docker run -d --name jdbc-baza -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=uporabniki -p 5432:5432 postgres:12
+```
+Privzeti uporabnik je `postgres`.
+
+### Drugi uporabni Docker ukazi
+|ukaz||
+|---|---|
+|`docker ps`|prikaže vse vsebnike, ki so trenutno zagnani|
+|`docker ps -a`|prikaže vse vsebnike v sistemu (zagnane in ne zagnane)|
+|`docker start <ime vsebnika>`|zažene vsebnik|
+|`docker stop <ime vsebnika>`|ustavi vsebnik|
+|`docker rm <ime vsebnika>`|odstrani vsebnik (vsebnik ne sme biti zagnan)|
+
+## Ustvarjanje baze
+### Povezovanje na bazo
+Na bazo se povežemo z enim izmed orodji (IntelliJ npr.). Podatki za povezavo so:
+```
+host: localhost
+port: 5432
+user: postgres
+password: postgres
+database: uporabniki
+URL: jdbc:postgresql://localhost:5432/uporabniki
+```
+
+### Ustvarjanje sheme, entitetnega tipa in entitete
+```sql
+create scheme uporabniki;
+```
+
+```sql
+create table uporabniki.Uporabnik
+(
+	ime varchar(20) not null,
+	priimek varchar(50) not null,
+	uporabnisko_ime varchar(20) not null,
+	id_uporabnika serial
+		constraint Uporabnik_pk
+			primary key
+);
+
+create unique index Uporabnik_uporabnisko_ime_uindex
+	on uporabniki.Uporabnik (uporabnisko_ime);
+```
+
+```sql
+insert into uporabniki.uporabnik(ime, priimek, uporabnisko_ime) VALUES ('Pinko', 'Palinko', 'pinkop');
+```
+
+## Implementacija knjižnice za delo z entitetami s pomočjo JDBC
