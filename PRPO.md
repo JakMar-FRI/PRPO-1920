@@ -155,9 +155,9 @@ Skupek strežnikov storitev, ki jih za poganjanje aplikacije potrebujemo:
 >Zmožnost poganjanja večih instanc posamezne komponente (potreno pravilno programiranje)
 
 >### Cap teorem
-> C - transakcijska konsistentnost podatkov
-> A - razpoložjivost podatkov v konsistentni obliki v vseh vozliščih
-> P - particijska enostavnost: enostavnost horizontalne skalabilnosti
+> C - transakcijska konsistentnost podatkov\
+> A - razpoložjivost podatkov v konsistentni obliki v vseh vozliščih\
+> P - particijska enostavnost: enostavnost horizontalne skalabilnosti\
 > izbereš lahko največ dve od treh\
 > ![](./pics/CAP001.png)
 
@@ -1668,10 +1668,17 @@ public Response vrniRazmerja (
 ) {... }
 ```
 
+> *"Ste videli kdaj v muzeju tiste prve telefone. iPhone in podobno"*
+>
+> Jurič, 25.11
+
 
 
 # Medklici
 ## HTTP kode
+
+![](./pics/REST003.png)
+
 ### Uporabne HTTP kode za uspešno procesiranje
 |HTTP koda|pomen|
 |--|--|
@@ -1692,4 +1699,8 @@ public Response vrniRazmerja (
 |`415 Unsupported Media Type`|tip vsebine ni veljaven|
 |`422 Unprocessable Entity`|validacijske napaka|
 |`500 Internal Server Error`|generalna napaka na strežniku|
+
+>*"Kolokvij ste preživeli, ampak samo polovica."*
+>
+>Jurič, 25.11.2019
 

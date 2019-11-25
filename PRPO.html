@@ -553,7 +553,6 @@ void 0!==arguments[0]&&(br.sequenceConfig=arguments[0]),e=arguments[1]):e=argume
 <li><a href="#prestrezniki-interceptors">Prestrezniki (Interceptors)</a></li>
 </ul>
 </li>
-<li><a href="#storitve-rest-v-javi">Storitve REST v Javi</a></li>
 <li><a href="#medklici">Medklici</a>
 <ul>
 <li><a href="#http-kode">HTTP kode</a>
@@ -692,9 +691,9 @@ Skalabilnost nam pove kaj se bo zgodilo z odzivnim časom, ko povečujemo števi
 </blockquote>
 <blockquote>
 <h3 id="cap-teorem">Cap teorem</h3>
-<p>C - transakcijska konsistentnost podatkov
-A - razpoložjivost podatkov v konsistentni obliki v vseh vozliščih
-P - particijska enostavnost: enostavnost horizontalne skalabilnosti
+<p>C - transakcijska konsistentnost podatkov<br>
+A - razpoložjivost podatkov v konsistentni obliki v vseh vozliščih<br>
+P - particijska enostavnost: enostavnost horizontalne skalabilnosti<br>
 izbereš lahko največ dve od treh<br>
 <img src="./pics/CAP001.png" alt=""></p>
 </blockquote>
@@ -2312,7 +2311,105 @@ Odjemalec potrebuje več klicov na strežnik, da pridobi vse kar želi o element
 </div></code></pre>
 <pre class="hljs"><code><div><span class="hljs-attribute">Accept-Encoding</span>: gzip, deflate
 </div></code></pre>
-<h1 id="storitve-rest-v-javi">Storitve REST v Javi</h1>
+<h2 id="storitve-rest-v-javi">Storitve REST v Javi</h2>
+<p>REST storitve v Javi implementiramo s pomočjo <strong>JAX-RS</strong> (Java API for RESTful Web Services), ki je del uradne implementacije Java EE 7.</p>
+<h3 id="rest-aplikacija">REST aplikacija</h3>
+<p>REST aplikacijo definiramo z aplikacijskim razredom, z <code>@ApplicationPath</code> definiramo relativno pot namestitve rest aplikacije (<em>primer poti. http://api.skladi.si/v1</em>) :</p>
+<pre class="hljs"><code><div><span class="hljs-meta">@ApplicationPath</span>(<span class="hljs-string">"/v1"</span>)
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">RestStoritve</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">javax</span>.<span class="hljs-title">ws</span>.<span class="hljs-title">rs</span>.<span class="hljs-title">core</span>.<span class="hljs-title">Application</span> </span>{
+
+    <span class="hljs-meta">@Override</span>
+    <span class="hljs-keyword">public</span> Set&lt;Class&lt;?&gt;&gt; getClasses() {
+        Set&lt;Class&lt;?&gt;&gt; resources = <span class="hljs-keyword">new</span> java.util.HashSet&lt;Class&lt;?&gt;&gt;();
+        resources.add(RazmerjaStoritev.class);
+        <span class="hljs-keyword">return</span> resources;
+    }
+}
+</div></code></pre>
+<p>REST storitve in njene vire umestimo z anotacijo <code>@Path</code></p>
+<pre class="hljs"><code><div><span class="hljs-meta">@Path</span>(<span class="hljs-string">"razmerja"</span>)
+<span class="hljs-keyword">public</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">RazmerjaStoritev</span> </span>{
+    <span class="hljs-function"><span class="hljs-keyword">public</span> Response <span class="hljs-title">vrniRazmerja</span><span class="hljs-params">(...)</span> </span>{...}
+
+    <span class="hljs-meta">@Path</span>(<span class="hljs-string">"{id}"</span>)
+    <span class="hljs-function"><span class="hljs-keyword">public</span> Response <span class="hljs-title">vrniRazmerje</span><span class="hljs-params">(...)</span></span>{...}
+
+    <span class="hljs-meta">@Path</span>(<span class="hljs-string">"{id}/vrednosti"</span>)
+    <span class="hljs-function"><span class="hljs-keyword">public</span> Response <span class="hljs-title">vrniVrednosti</span><span class="hljs-params">(...)</span></span>{...}
+
+    <span class="hljs-meta">@Path</span>(<span class="hljs-string">"{id}/vrednosti/{idVrednosti}"</span>)
+    <span class="hljs-function"><span class="hljs-keyword">public</span> Response <span class="hljs-title">vrniVrednost</span><span class="hljs-params">(...)</span></span>{...}
+}
+</div></code></pre>
+<p>Za anotacijami definiramo katere HTTP akcije implementirajo katere javne metode storitve</p>
+<pre class="hljs"><code><div><span class="hljs-meta">@GET</span>
+<span class="hljs-meta">@Path</span>(<span class="hljs-string">"{id}"</span>)
+<span class="hljs-function"><span class="hljs-keyword">public</span> Response <span class="hljs-title">vrniRazmerje</span><span class="hljs-params">(...)</span></span>{...}
+
+<span class="hljs-meta">@POST</span>
+<span class="hljs-function"><span class="hljs-keyword">public</span> Response <span class="hljs-title">dodajRazmerje</span><span class="hljs-params">(...)</span></span>{...}
+
+<span class="hljs-meta">@PUT</span>
+<span class="hljs-meta">@Path</span>(<span class="hljs-string">"{id}"</span>)
+<span class="hljs-function"><span class="hljs-keyword">public</span> Response <span class="hljs-title">posodobiRazmerje</span><span class="hljs-params">(...)</span></span>{...}
+
+<span class="hljs-meta">@DELETE</span>
+<span class="hljs-meta">@Path</span>(<span class="hljs-string">"{id}"</span>)
+<span class="hljs-function"><span class="hljs-keyword">public</span> Response <span class="hljs-title">odstraniRazmerje</span> <span class="hljs-params">(...)</span></span>{...}
+</div></code></pre>
+<h4 id="parametri-poti-virov">Parametri poti virov</h4>
+<p>Parametre lahko definiramo z regularnim izrazom in ga definiramo z anotacijo <code>@PathParam</code></p>
+<pre class="hljs"><code><div><span class="hljs-meta">@Path</span>(<span class="hljs-string">"{id}/vrednosti/{idVrednosti: \d{4}-\d{2}-\d{2}}"</span>)
+<span class="hljs-function"><span class="hljs-keyword">public</span> Response <span class="hljs-title">vrniVrednost</span><span class="hljs-params">(
+        @PathParam(<span class="hljs-string">"id"</span>)</span>
+        String skladId,
+        @<span class="hljs-title">PathParam</span><span class="hljs-params">(<span class="hljs-string">"idVrednosti"</span>)</span>
+        String vrednostId
+) </span>{
+    ...
+}
+</div></code></pre>
+<p>Ostale anotacije za vstavljanje vrednosti parametrov so:</p>
+<table>
+<thead>
+<tr>
+<th>Anotacija</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>@QueryParam</code></td>
+<td>za parametre povpraševanja <em>../skladi?filter=naziv</em></td>
+</tr>
+<tr>
+<td><code>@HeaderParam</code></td>
+<td>za vrednosti HTTP zaglavja</td>
+</tr>
+<tr>
+<td><code>@MatrixParam</code></td>
+<td>za matrične vrednosti <em>../skladi;filter=aktivni/vrednosti;items=6</em></td>
+</tr>
+<tr>
+<td><code>@CookieParam</code></td>
+<td>za vrednosti prejetih piškotkov</td>
+</tr>
+<tr>
+<td><code>@FormParam</code></td>
+<td>za vrednosti spletnih obrazcev</td>
+</tr>
+<tr>
+<td><code>@DefaultValue</code></td>
+<td>za privzete vrednosti</td>
+</tr>
+</tbody>
+</table>
+<pre class="hljs"><code><div><span class="hljs-function"><span class="hljs-keyword">public</span> Response <span class="hljs-title">vrniRazmerja</span> <span class="hljs-params">(
+        @DefaultValue(<span class="hljs-string">"*"</span>)</span>
+        @<span class="hljs-title">QueryParam</span><span class="hljs-params">(<span class="hljs-string">"filter"</span>)</span>
+        String filter
+) </span>{... }
+</div></code></pre>
 <h1 id="medklici">Medklici</h1>
 <h2 id="http-kode">HTTP kode</h2>
 <h3 id="uporabne-http-kode-za-uspe%C5%A1no-procesiranje">Uporabne HTTP kode za uspešno procesiranje</h3>

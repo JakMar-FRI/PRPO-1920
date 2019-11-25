@@ -1,0 +1,11 @@
+kumuluzee:
+  name: prvi-servlet
+  version: 1.0.0
+  env:
+    name: dev
+    datasources:
+      - jndi-name: jdbc/podatkovnaBaza
+        connection-url: jdbc:postgresql://localhost:5432/uporabniki
+        username: postgres
+        password: postgres
+        max-pool-size: 20

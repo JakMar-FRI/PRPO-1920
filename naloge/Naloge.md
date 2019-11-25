@@ -213,4 +213,314 @@ create unique index Uporabnik_uporabnisko_ime_uindex
 insert into uporabniki.uporabnik(ime, priimek, uporabnisko_ime) VALUES ('Pinko', 'Palinko', 'pinkop');
 ```
 
+## Konfiguracija dokumenta
+### `config.yaml`
+`config.yaml`:
+```yaml
+kumuluzee:
+  name: <ime servleta:prvi-servlet>
+  version: 1.0.0
+  env:
+    name: dev
+  datasources:
+    - jndi-name: jdbc/podatkovnaBaza
+      connection-url: jdbc:postgresql://localhost:<port:5432>/<ime baze:uporabniki>
+      username: <uporabnik:postgres>
+      password: <geslo:postgres>
+      max-pool-size: 20
+```
+### `pom.xml`
+V pom datoteko dodamo (med `<dependencies>`):
+```xml
+<dependency>
+    <groupId>org.postgresql</groupId>
+    <artifactId>postgresql</artifactId>
+    <version>${postgresql.version}</version>
+</dependency>
+<dependency>
+    <groupId>org.postgresql</groupId>
+    <artifactId>postgresql</artifactId>
+    <version>${postgresql.version}</version>
+</dependency>
+```
+
+Med spremelnljivke `<properties>`dodamo verzijo postgresa:
+```xml
+<postgresql.version>42.0.0</postgresql.version>
+```
+
 ## Implementacija knjižnice za delo z entitetami s pomočjo JDBC
+### Abstraktni razred `Entiteta`
+Abstraktni razred Entiteta ustvarite v novem paketu, razred implementira vmesni *java.io.Serializable*.
+
+Razred naj vsebuje enoličen identifikator za entiteto `Integer id` ter getter in setter metodi.
+
+```java
+package si.fri.prpo.jakmar.jdbc;
+
+import java.io.Serializable;
+
+public abstract class Entiteta implements Serializable {
+    private Integer id;
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+}
+```
+
+### `Uporabnik.java`
+Ustvarite nov javanski razred, katerega ime je identično imenu entitetnega tipa v podatkovni bazi (*npr. Uporabnik.java*).
+
+Razred najrazširja razred Entiteta ter ima enaka polja kot jih ima tabela v podatkovni bazi. Metoda ima definirane tudi getter-je in setter-je.
+
+```java
+package si.fri.prpo.jakmar.jdbc;
+
+public class Uporabnik extends Entiteta {
+    private String ime;
+    private String priimek;
+    private String uporabniskoIme;
+
+    public Uporabnik(String ime, String priimek, String uporabniskoIme) {
+        this.ime = ime;
+        this.priimek = priimek;
+        this.uporabniskoIme = uporabniskoIme;
+    }
+
+    public String getIme() {
+        return ime;
+    }
+
+    public void setIme(String ime) {
+        this.ime = ime;
+    }
+    ...
+```
+
+### Vzorec DAO
+Najprej kreiramo vmesnik `BaseDao`, ta definira osnovne operacije nad entitetami, ki omogočajo branje in pisanje v bazo.
+```java
+package si.fri.prpo.jakmar.jdbc;
+
+import java.sql.Connection;
+import java.util.List;
+
+public interface BaseDao {
+    Connection getConnection();
+    
+    Entiteta vrni(int id);
+    
+    void vstavi(Entiteta ent);
+    
+    void odstrani(int id);
+    
+    void posodobi(Entiteta ent);
+    
+    List<Entiteta> vrniVse();
+}
+```
+
+Sledi implementacija vmesnika v razredu `NasaEntitetaDaoImpl`, ki vsebuje JDBC kodo. Razred naj bo pripravljen po vzorcu `Singleton` (instanca se ustvari samo enkrat).
+```java
+private static UporabnikDaoImpl instance;
+
+    private static UporabnikDaoImpl getInstance() {
+        if (instance == null)
+            instance = new UporabnikDaoImpl();
+        return instance;
+    }
+```
+
+Pridobivanje povezave na podatkovno bazo:
+```java
+@Override
+    public Connection getConnection() {
+        try {
+            InitialContext intiCtx = new InitialContext();
+            DataSource ds = (DataSource) intiCtx.lookup("jdbc/podatkovnaBaza");
+            return ds.getConnection();
+        } catch (Exception e) {
+            log.severe("Na morem se povezati: " + e.getMessage());
+        }
+        return null;
+    }
+```
+
+Pridobivanje entitete iz baze poteka v devh korakih:
+```java
+@Override
+    public Entiteta vrni(int id) {
+        PreparedStatement ps = null;
+        try {
+            if (connection == null)
+                connection = getConnection();
+
+            String sql = "SELECT * FROM uporabniki WHERE id = ?";
+            ps = connection.prepareStatement(sql);
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next())
+                return getUporabnik(rs);
+            else
+                log.info("Uporabnik ne obstaja");
+        } catch (SQLException e) {
+            log.severe(e.toString());
+        } finally {
+            if (ps != null)
+                try{
+                    ps.close();
+                } catch (SQLException e) {
+                    log.severe(e.toString());
+                }
+        }
+        return null;
+    }
+
+    private Entiteta getUporabnik(ResultSet rs) throws SQLException {
+        String ime = rs.getString("ime");
+        String priimek = rs.getString("priimek");
+        String uporabniskoIme = rs.getString("uporabnisko_ime");
+        Uporabnik u = new Uporabnik(ime, priimek, uporabniskoIme);
+        return u;
+    }
+```
+
+Vstavljanje v bazo:
+```java
+@Override
+    public void vstavi(Entiteta ent) {
+        PreparedStatement ps = null;
+        Uporabnik u = (Uporabnik) ent;
+        try {
+            if (connection == null)
+                connection = getConnection();
+
+            String sql = "INSERT INTO uporabniki (ime, priimek, username) VALUES (?, ?, ?)";
+            ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            ps.setString(1, u.getIme());
+            ps.setString(2, u.getPriimek());
+            ps.setString(3, u.getUporabniskoIme());
+
+            ps.executeUpdate();
+            ResultSet rs = ps.getGeneratedKeys();
+            if(rs.next()) {
+                int id = rs.getInt(1);
+                u.setId(id);
+            }
+        } catch (SQLException e) {
+            log.severe(e.toString());
+        } finally {
+            if (ps != null)
+                try{
+                    ps.close();
+                } catch (SQLException e) {
+                    log.severe(e.toString());
+                }
+        }
+    }
+```
+
+Odstranjevanje:
+```java
+@Override
+    public void odstrani(int id){
+        PreparedStatement ps = null;
+
+        try{
+            if (connection == null)
+                connection = getConnection();
+
+            String sql = "DELETE FROM uporabniki WHERE id = ?";
+            ps = connection.prepareStatement(sql);
+            ps.setInt(1, id);
+
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            log.severe(e.toString());
+        } finally {
+            if (ps != null) {
+                try {
+                    ps.close();
+                } catch (SQLException e) {
+                    log.severe(e.toString());
+                }
+            }
+        }
+    }
+```
+
+Posodabljanje:
+```java
+@Override
+    public void posodobi(Entiteta ent){
+        PreparedStatement ps = null;
+        Uporabnik u = (Uporabnik) ent;
+
+        try{
+            if (connection == null)
+                connection = getConnection();
+            String sql = "UPDATE uporabniki SET ime = ?, priimek = ?, username = ? WHERE id = ?";
+            ps = connection.prepareStatement(sql);
+            ps.setString(1, u.getIme());
+            ps.setString(2,u.getPriimek());
+            ps.setString(3, u.getUporabniskoIme());
+            ps.setInt(4, u.getId());
+
+            ps.executeUpdate();
+
+        } catch (SQLException e) {
+            log.severe(e.toString());
+        } finally {
+            if (ps != null) {
+                try {
+                    ps.close();
+                } catch (SQLException e) {
+                    log.severe(e.toString());
+                }
+            }
+        }
+    }
+```
+
+Vračanje vseh entitet:
+```java
+@Override
+    public List<Entiteta> vrniVse(){
+        List<Entiteta> entitete = new ArrayList<Entiteta>();
+        Statement st = null;
+
+        try{
+            if(connection == null){
+                connection = getConnection();
+            }
+
+            st = connection.createStatement();
+            String sql = "SELECT * FROM uporabniki";
+            ResultSet rs = st.executeQuery(sql);
+
+            while(rs.next()){
+                entitete.add(getUporabnikFromRS(rs));
+            }
+        } catch (SQLException e){
+            log.severe(e.toString());
+        } finally {
+            if(st == null){
+                try{
+                    st.close();
+                } catch (Exception e){
+                    log.severe(e.toString());
+                }
+            }
+        }
+        return entitete;
+    }
+}
+```
+
+## Izpis uporabnikov v servletu
