@@ -32,13 +32,13 @@
     - [Korak 1: Nalaganje gonilnika](#korak-1-nalaganje-gonilnika)
     - [Korak 2: Sestavljenje URL niza za povezavo na bazo](#korak-2-sestavljenje-url-niza-za-povezavo-na-bazo)
     - [Korak 3: Vzpostavljanje povezave](#korak-3-vzpostavljanje-povezave)
-    - [Korak 4: Kreiranje objekta ```Statement```, ```PreparedStatement``` ali ```CallableStatement```](#korak-4-kreiranje-objekta-statement-preparedstatement-ali-callablestatement)
-      - [`Statement`](#statement)
-      - [`PreparedStatement`](#preparedstatement)
-      - [`CallableStatement`](#callablestatement)
+    - [Korak 4: Kreiranje objekta Statement, PreparedStatement ali CallableStatement](#korak-4-kreiranje-objekta-statement-preparedstatement-ali-callablestatement)
+      - [Statement](#statement)
+      - [PreparedStatement](#preparedstatement)
+      - [CallableStatement](#callablestatement)
     - [Korak 5: Izvršitev SQL povpraševanj ali shranjenih procedur](#korak-5-izvr%c5%a1itev-sql-povpra%c5%a1evanj-ali-shranjenih-procedur)
-      - [Uporaba objekta `Statement`](#uporaba-objekta-statement)
-      - [Uporaba objekta `PreparedStatement`](#uporaba-objekta-preparedstatement)
+      - [Uporaba objekta Statement](#uporaba-objekta-statement)
+      - [Uporaba objekta PreparedStatement](#uporaba-objekta-preparedstatement)
     - [Korak 6: Obdelava rezultatov](#korak-6-obdelava-rezultatov)
     - [Korak 7: Zapiranje povezave](#korak-7-zapiranje-povezave)
   - [JDBC transakcije](#jdbc-transakcije)
@@ -51,13 +51,13 @@
 - [Java Persistence API (JPA)](#java-persistence-api-jpa)
   - [Objektno-relacijska preslikava (ORM)](#objektno-relacijska-preslikava-orm)
   - [Primerjava arhitekture Java apliakcije](#primerjava-arhitekture-java-apliakcije)
-  - [Struktura Java Persistence APIja (`javax.persistence`)](#struktura-java-persistence-apija-javaxpersistence)
-    - [Razred `Persistence`](#razred-persistence)
-    - [Razred `EntityManagerFactory`](#razred-entitymanagerfactory)
-    - [Razred `EntityManager`](#razred-entitymanager)
-    - [`Entity`](#entity)
-    - [Razred `EntityTransaction`](#razred-entitytransaction)
-    - [Vmesnik `Query`](#vmesnik-query)
+  - [Struktura Java Persistence APIja (javax.persistence)](#struktura-java-persistence-apija-javaxpersistence)
+    - [Razred Persistence](#razred-persistence)
+    - [Razred EntityManagerFactory](#razred-entitymanagerfactory)
+    - [Razred EntityManager](#razred-entitymanager)
+    - [Entity](#entity)
+    - [Razred EntityTransaction](#razred-entitytransaction)
+    - [Vmesnik Query](#vmesnik-query)
       - [Java Persistence Query Language (JPQL)](#java-persistence-query-language-jpql)
   - [Anotiranje entitetnih razredov](#anotiranje-entitetnih-razredov)
   - [Relacije med entitetami](#relacije-med-entitetami)
@@ -68,13 +68,16 @@
     - [Posodabljanje entitet](#posodabljanje-entitet)
     - [Povpraševanje po entitetah](#povpra%c5%a1evanje-po-entitetah)
       - [Iskanje entitet](#iskanje-entitet)
-      - [Povpraševanje po entitetah `QueryAPI`](#povpra%c5%a1evanje-po-entitetah-queryapi)
+      - [Povpraševanje po entitetah QueryAPI](#povpra%c5%a1evanje-po-entitetah-queryapi)
   - [Struktura Java Persistence APIja](#struktura-java-persistence-apija)
   - [Primerjava pristopov k shranjevanju podatkov v Javi](#primerjava-pristopov-k-shranjevanju-podatkov-v-javi)
 - [Contexts and Dependency Injection (CDI)](#contexts-and-dependency-injection-cdi)
   - [CDI zrna](#cdi-zrna)
   - [Doseg CDI](#doseg-cdi)
   - [Prestrezniki (Interceptors)](#prestrezniki-interceptors)
+  - [Sinhrono ali asinhrono delovanje](#sinhrono-ali-asinhrono-delovanje)
+  - [Dokumentacija OPENAPI 2.0 (SWAGGER)](#dokumentacija-openapi-20-swagger)
+  - [Varnost](#varnost)
 - [Medklici](#medklici)
   - [HTTP kode](#http-kode)
     - [Uporabne HTTP kode za uspešno procesiranje](#uporabne-http-kode-za-uspe%c5%a1no-procesiranje)
@@ -1671,6 +1674,48 @@ public Response vrniRazmerja (
 > *"Ste videli kdaj v muzeju tiste prve telefone. iPhone in podobno"*
 >
 > Jurič, 25.11
+
+## Sinhrono ali asinhrono delovanje
+![](./pics/api001.png)
+
+Pri beleženju povratnih klicev ne smemo predvidevati, da bo prva poslana zahteva tudi prva dobila odgovor.
+
+![](./pics/api002.png)
+
+## Dokumentacija OPENAPI 2.0 (SWAGGER)
+Dokumentacijo opišemo z:
+0.  URL lokacija
+1.  Ime operacije
+2.  Struktura parametrov
+3.  Opis delovanja
+4.  Struktura odgovora
+5.  Izjeme/napake
+
+Specifikacijo OPENAPI pišemo v **YAML** formatu. Specifikacijo samodejno generiramo z uporabo anotacij, ki so del knjižnice **???**.
+
+> *Zdaj ste že veliki, a veste kaj boste, ko boste veliki?*
+>
+> Jurič
+
+## Varnost
+![](./pics/OAuth.png)
+
+OAuth 2.0 omogoča:
+*   dostop do podatkov brez uporabe gesla (uporaba žetonov)
+*   dostop do podmnožice podatkov (*lahko vidimo, da je nekdo kupil 10 škatel aspirina, ne vidimo pa kdo*)
+*   dostop do podatkov lahko prekličemo
+
+Vloge:
+*   **lastnik virov** (resource owner)
+*   **strežnik virov**
+*   
+
+![](./pics/OAuth2.png)
+
+**JSON Web Tokens**
+
+Žetoni so kodirani v *base64*. Žeton lahko dodatno kriptiramo, tako da ga tretja oseba ne more prebrati. Kriptiramo ga lahko simetrično ali z javni in zasebnim ključem.
+
 
 
 
