@@ -78,6 +78,12 @@
   - [Sinhrono ali asinhrono delovanje](#sinhrono-ali-asinhrono-delovanje)
   - [Dokumentacija OPENAPI 2.0 (SWAGGER)](#dokumentacija-openapi-20-swagger)
   - [Varnost](#varnost)
+- [Angular](#angular)
+  - [Pristop k implementaciji spletnih aplikacij](#pristop-k-implementaciji-spletnih-aplikacij)
+    - [Server-side ogrodje](#server-side-ogrodje)
+    - [Client-side MVC (Model View Controller)](#client-side-mvc-model-view-controller)
+    - [Pristop k implementaciji HTML odjemalca](#pristop-k-implementaciji-html-odjemalca)
+  - [Angular - osnove](#angular---osnove)
 - [Medklici](#medklici)
   - [HTTP kode](#http-kode)
     - [Uporabne HTTP kode za uspešno procesiranje](#uporabne-http-kode-za-uspe%c5%a1no-procesiranje)
@@ -1715,6 +1721,26 @@ Vloge:
 **JSON Web Tokens**
 
 Žetoni so kodirani v *base64*. Žeton lahko dodatno kriptiramo, tako da ga tretja oseba ne more prebrati. Kriptiramo ga lahko simetrično ali z javni in zasebnim ključem.
+
+# Angular
+
+## Pristop k implementaciji spletnih aplikacij
+### Server-side ogrodje
+### Client-side MVC (Model View Controller)
+
+Model, pogled in kontroler se nahajajo na strani odjemalca. Stanje tipično ne hrenimo na strežniku (strežniško okolje zagotavlja zgolj storitve brez stanja).
+
+Brskalnik odda HTTP zahteve, strežnik pošlje odgovor kot JSON datoteko s podatki ali HTML predlogo.
+
+### Pristop k implementaciji HTML odjemalca
+
+![](./pics/angular001.png)
+
+**REST** storitve implementiramo s poljubno tehnologijo: Java EE strežnik (JAX-RS), Servlet container (npr. Apache Tomcat), Node.js.
+
+Statične vsebine tipično strežemo preko omrežja CDN (Content Delivery Network)
+
+## Angular - osnove
 
 
 
