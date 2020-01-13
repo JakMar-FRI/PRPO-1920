@@ -32,13 +32,13 @@
     - [Korak 1: Nalaganje gonilnika](#korak-1-nalaganje-gonilnika)
     - [Korak 2: Sestavljenje URL niza za povezavo na bazo](#korak-2-sestavljenje-url-niza-za-povezavo-na-bazo)
     - [Korak 3: Vzpostavljanje povezave](#korak-3-vzpostavljanje-povezave)
-    - [Korak 4: Kreiranje objekta Statement, PreparedStatement ali CallableStatement](#korak-4-kreiranje-objekta-statement-preparedstatement-ali-callablestatement)
-      - [Statement](#statement)
-      - [PreparedStatement](#preparedstatement)
-      - [CallableStatement](#callablestatement)
+    - [Korak 4: Kreiranje objekta ```Statement```, ```PreparedStatement``` ali ```CallableStatement```](#korak-4-kreiranje-objekta-statement-preparedstatement-ali-callablestatement)
+      - [`Statement`](#statement)
+      - [`PreparedStatement`](#preparedstatement)
+      - [`CallableStatement`](#callablestatement)
     - [Korak 5: Izvršitev SQL povpraševanj ali shranjenih procedur](#korak-5-izvr%c5%a1itev-sql-povpra%c5%a1evanj-ali-shranjenih-procedur)
-      - [Uporaba objekta Statement](#uporaba-objekta-statement)
-      - [Uporaba objekta PreparedStatement](#uporaba-objekta-preparedstatement)
+      - [Uporaba objekta `Statement`](#uporaba-objekta-statement)
+      - [Uporaba objekta `PreparedStatement`](#uporaba-objekta-preparedstatement)
     - [Korak 6: Obdelava rezultatov](#korak-6-obdelava-rezultatov)
     - [Korak 7: Zapiranje povezave](#korak-7-zapiranje-povezave)
   - [JDBC transakcije](#jdbc-transakcije)
@@ -51,13 +51,13 @@
 - [Java Persistence API (JPA)](#java-persistence-api-jpa)
   - [Objektno-relacijska preslikava (ORM)](#objektno-relacijska-preslikava-orm)
   - [Primerjava arhitekture Java apliakcije](#primerjava-arhitekture-java-apliakcije)
-  - [Struktura Java Persistence APIja (javax.persistence)](#struktura-java-persistence-apija-javaxpersistence)
-    - [Razred Persistence](#razred-persistence)
-    - [Razred EntityManagerFactory](#razred-entitymanagerfactory)
-    - [Razred EntityManager](#razred-entitymanager)
-    - [Entity](#entity)
-    - [Razred EntityTransaction](#razred-entitytransaction)
-    - [Vmesnik Query](#vmesnik-query)
+  - [Struktura Java Persistence APIja (`javax.persistence`)](#struktura-java-persistence-apija-javaxpersistence)
+    - [Razred `Persistence`](#razred-persistence)
+    - [Razred `EntityManagerFactory`](#razred-entitymanagerfactory)
+    - [Razred `EntityManager`](#razred-entitymanager)
+    - [`Entity`](#entity)
+    - [Razred `EntityTransaction`](#razred-entitytransaction)
+    - [Vmesnik `Query`](#vmesnik-query)
       - [Java Persistence Query Language (JPQL)](#java-persistence-query-language-jpql)
   - [Anotiranje entitetnih razredov](#anotiranje-entitetnih-razredov)
   - [Relacije med entitetami](#relacije-med-entitetami)
@@ -68,22 +68,14 @@
     - [Posodabljanje entitet](#posodabljanje-entitet)
     - [Povpraševanje po entitetah](#povpra%c5%a1evanje-po-entitetah)
       - [Iskanje entitet](#iskanje-entitet)
-      - [Povpraševanje po entitetah QueryAPI](#povpra%c5%a1evanje-po-entitetah-queryapi)
+      - [Povpraševanje po entitetah `QueryAPI`](#povpra%c5%a1evanje-po-entitetah-queryapi)
   - [Struktura Java Persistence APIja](#struktura-java-persistence-apija)
   - [Primerjava pristopov k shranjevanju podatkov v Javi](#primerjava-pristopov-k-shranjevanju-podatkov-v-javi)
 - [Contexts and Dependency Injection (CDI)](#contexts-and-dependency-injection-cdi)
   - [CDI zrna](#cdi-zrna)
   - [Doseg CDI](#doseg-cdi)
   - [Prestrezniki (Interceptors)](#prestrezniki-interceptors)
-  - [Sinhrono ali asinhrono delovanje](#sinhrono-ali-asinhrono-delovanje)
-  - [Dokumentacija OPENAPI 2.0 (SWAGGER)](#dokumentacija-openapi-20-swagger)
-  - [Varnost](#varnost)
-- [Angular](#angular)
-  - [Pristop k implementaciji spletnih aplikacij](#pristop-k-implementaciji-spletnih-aplikacij)
-    - [Server-side ogrodje](#server-side-ogrodje)
-    - [Client-side MVC (Model View Controller)](#client-side-mvc-model-view-controller)
-    - [Pristop k implementaciji HTML odjemalca](#pristop-k-implementaciji-html-odjemalca)
-  - [Angular - osnove](#angular---osnove)
+    - [Druge novosti v JMS 2.0](#druge-novosti-v-jms-20)
 - [Medklici](#medklici)
   - [HTTP kode](#http-kode)
     - [Uporabne HTTP kode za uspešno procesiranje](#uporabne-http-kode-za-uspe%c5%a1no-procesiranje)
@@ -1132,6 +1124,7 @@ public Payment processPayment() {
 > Jurišič, 11.11
 
 # Representational State Transfer (REST)
+
 **REST** je arhitekturni stil, ki izvaja abstrakcijo arhitekturnih elementov znotraj distribuiranih hipermedijskih sistemov (odjemalec-strežnik). Je brez stanja z močno uporabo medpomnenja.
 
 Ključne lastnosti REST-a so: skalabilnost, splošnost, neodvisnost, odzivnost na spremembe, latenca, varnost in enkapsulacija.
@@ -1722,11 +1715,144 @@ Vloge:
 
 Žetoni so kodirani v *base64*. Žeton lahko dodatno kriptiramo, tako da ga tretja oseba ne more prebrati. Kriptiramo ga lahko simetrično ali z javni in zasebnim ključem.
 
+# Mikrostoritve
+
+## Arhitektura mikrostoritev
+
+**Arhitektura mikrostoritev je koncept, kjer so posamezni deli aplikacije (komponente) oblikovane kot samostojni, neodvisni gradniki. Vsaka storitev deluje v svojem procesu, komunikacija pa poteka preko definiranih vmesnikov.**
+
+### Klasična *"monolitna"* arhitektura
+
+![](./pics/mikrostoritev001.png)
+
+Aplikacija je zapakirana v en *WAR/EAR* in je nameščena na aplikacijskem strežniku, kjer se celotna aplikacija obnaša kot monolit.
+
+Za skaliranje uporabljamo gručo strežnikov, skaliramo jo kot celoto. Pri posodobitvah ponovno namestimo celotno aplikacjo.
+
+### Pristop z mikrostoritvami
+
+![](./pics/mikrostoritev002.png)
+
+Vsaka storitev (logična enota) je nameščena ločeno, v svojem izvajalnem okolju, s svojim *WAR/EAR*. Komunikacija med storitvami poteka izključno preko vmesnikov, saj so odvisnosti med storitvami minimalizirane.
+
+Med prednosti mikrostoritev spadajo:
+*   fleksibilnost arhitekture aplikacije,
+*   na nivoju storitve spodbuja ponovno uporabo
+*   mikrostoritve razvijamo, nameščamo in posodabljamo neodvisno
+*   enostavnejše skaliranje aplikacij (skaliramo zgolj tisto, kaj je potrebno)
+
+Med slabosti mikrostoritev spadajo:
+*   kompleksnost konfiguracije, nameščanja, verzioniranja
+*   porazdeljenost v omrežju
+*   problem *"debelega"* izvajalnega okolja (overhead aplikacijkega strežnika)
+
+## Docker
+
+![](./pics/docker001.png)
+
+Docker je tehnologija, ki omogoča prenos rešitev iz razvojnega v produkcijsko okolje brez, da bi pri tem prihajalo do neskladnosti. Je neodvisen od platforme in jezikov namenjen namestitvi skalabilnih storitev, varno in zanesljivo na vrsto različnih platform.
+
+### Docker Container (vsebnik)
+Vsebnik je standarizirana enota za pakiranje programske opreme - aplikacije z vsemi odvisnotmi.
+
+Vsebnik pakira aplikacijo v celovit datotečni sistem, ki vsebuje vse, kar se lahko zaganja: kodo, izvajalno okolje, sistemska okolja, knjižnice,... To zagotavlja izvajanje ne glede na okolje v katerem se vsebnik izvaja.
+
+Vsebniki imajo majhen footprint in nudijo popolno izolacijo med aplikacijami in nižje ležečo infrastrukturo (podobno kot virtualni stroj).
+
+## Kubernetes
+
+Kubernetes je odprtokodna platforma za avtomatizirano nameščanje, skaliranje in upravljanje s vsebniki, ki omogoča izvajanje vsebnikov na gruči gostiteljev **nodes**. Kubernetes poskrbi za samodejno razporejanje na ustrezne gostitelje, zagotovi potrebo po virih in drugih omejitvah.
+
+Kubernetes v **primeru izpada vmesnika** poskrbi za **vnovični zagon vmesnika** in v **primeru izpada gostitelja** za **prerazporeditev vmesnikov**. V primeru **neodzivnosti na preverjanje vitalnosti** poskrbi za **odstranitev vmesnikov** in jih **ne oglašuje drugim komponentam, če ti niso na voljo.** Kubernetes omogoča tudi **samodejno horizontalno skaliranje vmesnikov glede na CPU porabo in vrednosti drugih matrik**.
+
+### Osnovni koncepti
+
+**Gostitelj (Node)** je vozlišče v gruči na katerem se izvajajo stroki. Praviloma ima Kubernetes gruča več gostiteljev.
+
+**Strok (Pod)** je skupina enega ali več vsebnikov ter predstavlja atomarno enoto - vsi vsebniki v podu se izvajajo na istem gostitelju.
+
+**Označbe (Labels)** so oznake za identifikacijo strokov in grupiranje.
+
+**Namestitev (Deployment)** definira predlogo za kreiranje želenega števila replik stroka. Namestitev omogoča varno nadgradnjo izvajajočih strokov.
+
+**Storitve (Service)** abstrakcija, ki izpostavi večje število replik stroka.
+
+**Preverjanje zdravja (Health checking)** je sistem za periodično preverjanje dostopnosti aplikacije in za samodejno nadomeščanje nedelujočih replik.
+
+![](./pics/kubernetes001.png)
+
+### Namestitvene enote v Kubernetes
+
+Kubernetes omogoča nasldnje namestitvene enote:
+*   stroke (pod)
+    *   najmanjša namestitvena enota iz enega ali več vsebnikov
+    *   deljena shramba
+    *   deljen IP in vrata
+    *   komunikacija med vsebniki prek *localhost*
+*   replikacijski niz
+*   namestitev
+    *   omogoča deklerativno posodabljanje strokov in replikacijskih nizov
+*   replikacijski nadzornik
+    *   zagotavlja, da v nekem trenutku teče zahtevano število replik nekega stroka
+    *   samodejno nadomeščanje strokov v primeru izpada
+
+### Kubernetes gruča
+
+![](./pics/kubernetes002.png)
+
+
+# Preverjanje vitalnosti
+
+## API za preverjanje zdravja *(Health Check API)*
+Čeprav se mikrostoritev odziva na zahtevke, lahko ne deluje pravilno (npr. nima povezave na bazo), zato v mikrostoritev implementiramo končno točko, ki preverja in vrača zdravje mikrostoritve - **API za preverjanje zdravja**.
+
+Takšen API lahko periodično kličemo s strani:
+*   mehanizem za odkrivanje storitev
+*   orodje za upravljanje vsebnikov
+*   orodje za monitoring aplikacije
+*   odjemalca za preverjanje zdravja
+
+Instanca mikrostoritve je zdrava, če se **vse** kontrole zdravja uspešno izvedejo. Kontrole zdravja delimo na:
+*   standardne
+    *   preverjanje povezave do vseh zunanjih storitev (npr. podatkovne baze)
+    *   preverjanje zasedenosti trdega diska
+    *   preverjanje stanja gostitelja
+*   po meri
+    *   razvijalec lahko sam sprogramira kontrolo zdravja
+
+### Odgovor API-ja za preverjanje zdravja
+Mikrostoritev vrača *JSON* objekt s statusom posameznih kontrol, pri čemer zdrave storitve vračajo kodo **200**, bolne pa kodo **503 service unavailable**.
+
+## API za preverjanje zdravja in odkrivanja storitev
+
+Mehanizem periodično izvaja klice na API za preverjanje zdravja, če se izkaže, da je instanca bolna jo odstrani iz registra storitev. Odjemalcem mehanizem sporoča samo naslove zdravih instanc.
+
+### Sonde življenja *(Kubernetes)*
+Sonde življenja preverjajo zdravje strokov in izvajajo se periodično v časovnih intervalih. Sonde zdravja lahko zdravje stroka preverjajo s pomočjo:
+*   izvajajo poljubne *bash* ukaze
+*   HTTP GET zahtevkov
+*   TCP vtičnic
+
+Zdrave instance vračajo HTTP kode med 200 do 400.
+
 # Angular
 
 ## Pristop k implementaciji spletnih aplikacij
 ### Server-side ogrodje
+
+![](./pics/angular003.png)
+
+Model, pogled in kontroler se nahajajo na strani strežnika. Storitve, ki zagotavljajo poslovno logiko (dostop do podatkov iz podatkovne baze) so skrite odjemalcu.
+
+Omejitve tovrstne arhitekture so:
+*   celotna logika nad prikazom in izvajanjem je na strani strežnika
+*   HTML se generira na strani strežnika (tudi, če se stran malenkostno spremeni, je potrebno osvežiti in prenesti celotno stran)
+*   strežnik potrebuje precej virov za generiranje vsebin
+*   težavno skaliranje
+
 ### Client-side MVC (Model View Controller)
+
+![](./pics/angular002.png)
 
 Model, pogled in kontroler se nahajajo na strani odjemalca. Stanje tipično ne hrenimo na strežniku (strežniško okolje zagotavlja zgolj storitve brez stanja).
 
@@ -1740,9 +1866,522 @@ Brskalnik odda HTTP zahteve, strežnik pošlje odgovor kot JSON datoteko s podat
 
 Statične vsebine tipično strežemo preko omrežja CDN (Content Delivery Network)
 
+## Tipi uporabniških vmesnikov
+**Strežniški model spletnih uporabniških vmesnikov**
+*   po principu MVC
+*   aplikacijo sestavljajo pogledi, ki se izrisujejo v brskalniku
+*   spletna aplikacija procesira pogled v celot
+*   aktivnosti procesira strežnik
+*   strežnik vzdržuje uporabniško sejo
+
+**Odjemalski model spletnih uporabniških vmesnikov**
+*   odjemalski model definira izvajanje aplikacije na strani odjemalca v spletne brskalniku
+*   odjemalec za komunikacijo s strežnikom uporablja REST vire
+*   odjemlasko ogrodje gradi obliko in definira obnašanje aplikacije
+*   večji del procesiranja se izvaja v brskalniku odjemalca
+*   strežnik ne vzdržuje uporabniške seje
+
+|Strežniški model | Odjemalski model |
+|---|---|
+|Večina procesiranja na strani strežnika | Večina procesiranja na strani odjemalca|
+|Le delno izvajanje procesiranja izgleda na odjemalcu| Strežnik procesira samo REST vire|
+|Večina izgleda pripravljenega na strani strežnika|Izgled se pripravi z uporabo naloženih skript na strani odjemalca|
+|Varovano in nadzorovano strežniško okolje|Manjša obremenitev strežnika, počasnejše izvajanje JavaScript|
+|Dobra standarizacija komponent|Nestandardna ogrodja|
+
+**Kombinirani model spletnih uporabniških vmesnikov**
+*   Združuje zmogljivosti strežniškega in odjemalskega modela
+*   Strežnik izvaja procesiranje aktivnosti v sodelovanju z odjemalcem
+*   Poslovne storitve se izvajajo na strežniku, formatiranje izgleda in upravljanja se izvaja na strani odjemalca
+
+### Single-page HTML5 spletne aplikacije
+Osnovni HTML dokument se v celoti naloži samo enkrat, od takrat ima brskalnik popolno kontrolo na izvajanje uporabniškega vmesnika.
+
+Uporablja se **mobile first pristop**, ključne funkcionalnosti morajo biti enostavne za uporabo. Te ključne funkcionalnosti morajo biti izvedljive na zaslonu mobilne naprave.
+
+## TypeScript
+TS je nadmnožica programskega jezika JavaScript - vsa koda specifikacij ES5 in več je združljiva s TS. Ker TS brskalniki ne podpirajo jo pred izvajanje transpiliramo v čisto JS kodo.
+
 ## Angular - osnove
 
+Angular je ogrodje za izdelavo odjemalskih aplikacij z uporabo HTML in jezika TypeScript (ali JavaScript, Dart) s poudarkom na hitrosti izvajanja.
 
+Angular komponenta se deli na
+*   **model** - dejanski podatki, ki jih pridobimo s strežnika
+*   **view** - HTML5 dokument, ki prikaže podatke
+*   **controller** - JS funkcije, ki spreminjajo HTML5 in podatke
+
+### Angular slovarček
+
+|Angular pojem|pomen|
+|---|---|
+|template/view| predloga (HTML, ki ga upravlja komponenta)|
+|component|koda, ki pripada HTML dokumentu in ga upravlja (upravlja z modelom ter DOM drevesom)|
+|model|podatki, ki jih stran prikazuje (pridobljeno s strežnika)|
+|service|storitev, ki po navadi priskrbi podatke iz strežnika|
+|module|vsebnik različnih delov aplikacije|
+
+## Angular moduli
+
+Moduli v Angular pomagajo pri organizaciji aplikacije v funkcionalne bloke. Razred, ki je dekoriran z dekoratorjem **_NgModule_** . Dekorator določa navodila za preverjanje in izvajanje modula.
+
+Aplikacija mora vsebovati vsaj en korenski modul, ki se izvede ob zagonu aplikacije.
+
+```typescript
+@NgModule({
+    imports: [
+        BrowserModule,
+        HttpModule,
+        AppRoutingModule,
+        FormsModule
+    ],
+    declarations: [
+        AppComponent,
+        UporabnikiComponent,
+        UporabnikPodrobnostiComponent
+    ],
+    providers: [UporabnikService],
+    bootstrap: [AppComponent]
+}) export class AppModule { }
+```
+
+## Angular komponente
+Komponenta upravlja z delom zaslona, imenovenim pogled. Programska koda komponente je zapisana v razredi (kontrolerjih).
+
+**Predloga** določa izgled komponent in s tem aplikacije. Zapisana je v HTML sintaksi kateri lahko dodajamo tudi Angular sintakso za predloge _(npr. *ngFor_).
+
+**Metapodatki** določajo obnašanje razredov, dodajomo jih z uporabo dekoratorjev.
+
+### Življenjska doba komponent
+1.  **ngOnChanges** - sproži se, ko se ponastavijo vhosi nastavljeni preko vezave podatkov
+2.  **ngOnInit** - sproži se, ko se komponenta inicializira in prvič prikaže lastnosti v predlogi. Sproži se enkrat, pr prvem *ngOnChanges*.
+3. **ngDoCheck** - sproži se vsakič, ko se izvaja zaznavanje sprememb
+4.  **ngAfterContentInit** - sproži se, ko se vstavijo vse zunanje vsebine v pogled. Sproži se enkrat, po prvem *ngDoCheck*.
+5.  **ngAfterContentChecked** - sproži se, ko se preverijo vse vsebine, ki so vključene v komponento. Sproži se po *ngAfterContentInit* in vsakem nadaljnem *ngDoCheck*
+6.  **ngAfterViewInit** - sproži se, ko se inicializirajo vsi pogledi komponente in otroci pogledov. Sproži se enkrat, po prvem *ngAfterContentChecked*.
+7.  **ngAfterViewChecked** - sproži se, ko se preverijo vsi pogled in otroci pogledov. Sproži se po *ngAfterViewInit* in vsakem nadaljnem *ngAfterContentChecked*.
+8.  **ngOnDestroy** - sproži se preden se uniči komponenta. Namenjen je čiščenju - uničenju opazovalcev in odstranjevanju poslušalcev in rokovalnikov z dogodki.
+
+## Angular predloge
+
+Izgled komponent definiramo z uporabo predlog, predloga je HTML dokument z dodano Angular sintakso. V pogledih prikazujemo vrednosti, definirane v komponentah. Predloge so lahko v datoteki s komponento ali ločene.
+
+Primer predloge komponente:
+```html
+<div *ngIf="uporabnik">
+    <h3>Podrobnosti uporabnika {{uporabnik.ime}}</h3>
+    <table>
+        <tr>
+            <td>Id:</td>
+            <td>{{uporabnik.id}}</td>
+        </tr>
+            <tr>
+            <td>Ime:</td>
+            <td>{{uporabnik.ime}}</td>
+        </tr>
+        <tr>
+            <td>Priimek:</td>
+            <td>{{uporabnik.priimek}}</td>
+        </tr>
+            <tr>
+            <td>Uporabniško ime:</td>
+            <td>{{uporabnik.uporabniskoIme}}</td>
+        </tr>
+    </table>
+    <button (click)="nazaj()">Nazaj</button>
+</div>
+```
+
+## Angular - povezave s podatki *(data binding)*
+
+Angular v predloga omogoča dostop do podatkov iz komponent. Na voljo so štirje načini povezaovanja v različne smeri:
+*   komponenta --> DOM
+*   DOM --> komponenta
+*   v obe smeri
+
+Brez uporabe ogrodja bi morali ročno nastavljati podatke v HTML in pretvarjati reakcije uporabnikov.
+
+### Komponenta --> pogled
+#### Interpolacija
+Interpolacija prikazuje lastnosti komponente v predlogi *(smer: komponenta --> DOM)*
+```html
+<td>{{uporabnik.ime}}</td>
+```
+
+#### Vezava lastnosti
+Vezava lastnosti se uporablja za nastavljanje lastnosti pogleda elementa na vrednost, ki jo določa izraz
+```html
+<img [src] = "uporabnik.profilna slika" />
+```
+
+### Pogled --> komponenta
+#### Vezava dogodka
+Vezava dogodka se uporablja za vezavo dogodka na element, ki sproži izvajanje funkcije v komponenti.
+```html
+<button (click) = "dodajUporabnika()">
+    Dodaj uporabnika
+</button>
+```
+
+### Pogled <--> komponenta
+#### Dvo smerna vezava podatkov
+Združuje vezavo lastnosti in vezavo dogodka v eni notaciji, uporaba je možna le pri direktivi *ngModel*
+```html
+<tr>
+    <td>
+        <label for = "ime">
+            Ime
+        </label>
+    </td>
+    <td>
+        <input [(ngModel)] = "uporabnik.ime" id = "ime" name = "ime" />
+    </td>
+</tr>
+<tr>
+    <td>
+        <label for = "priimek">
+            Priimek
+        </label>
+    </td>
+    <td>
+        <input [(ngModel)] = "uporabnik.priimek" id = "priimek" name = "priimek">
+    </td>
+</tr>
+```
+
+## Angular obrazci
+
+Angular obrazci omogočajo:
+*   dvosmerno povezovanje podatkov s komponento
+*   sledenje spremembam
+*   validacijo
+*   upravljanje z napakami
+
+Dva pristopa implementacije:
+*   predlogovno voden
+*   odzivni pristop - definicija v kontrolerju namesto v predlogi
+
+### Validacija obrazcev
+V Angularju so dostopni preprosti vgrajeni validatorji, podobnim HTML validatorjem. Poleg teh lahko definiramo tudi svoje lastne validatorje. Uporabljamo modul **_Validators_**.
+
+## Angular direktive
+
+Direktive so nadmnožica komponent *(vsaka komponenta je direktiva s pogledom)*. Angular predloge so dinamične, ko se prikazujejo, se DOM prikazuje po pravilih, ki jih določajo direktive, ki so vedno implementirane z razredi, uporabljajo dekorator *@Directive*.
+
+Obstajajo trije tipi direktiv:
+*   **direktive s predlogo** = komponente
+*   **strukturne direktive** so direktive, ki spreminjajo DOM strukturo z dodajanjem in odstranjevanjem elementov *(ngFor, ngIf)*
+*   **atributne direktive** so direktive, ki spreminjajo izgled ali obnašanje elementi *(ngStyle)*
+
+## Angular usmerjanje
+Omogoča prehajanje med različnimi deli (komponentami) aplikacije, kjer ima vsaka aplikacija eno instanco usmerjevalnika, ki skrbi za prehode med pogledi. Vsaka pot povezuje naslov URL z ustrezno komponento, kar omogoča ohranjenje stanja aplikacije.
+
+Obstajajo trije glavni gradniki za upravljanje usmerjanja v Angular:
+*   **routes** - opisuje poti, ki jih aplikacija podpira
+*   **routerOutlet** - komponenta, ki poskrbi za vstavljanje vsebine, ki pripada določeni poti
+*   **routerLink** - direktiva, ki skrbi za generiranje povezav na poti
+
+Primer usmerjevalnika:
+```typescript
+import {NgModule} from '@angular/core';
+import {RouterModule, Routes} from '@angular/router';
+import {UporabnikiComponent} from './uporabniki.component';
+import {UporabnikPodrobnostiComponent} from './uporabnik-podrobnosti.component';
+import {UporabnikiDodajComponent} from './uporabniki-dodaj.component';
+const routes: Routes = [
+    { path: '', redirectTo: '/uporabniki', pathMatch: 'full' },
+    { path: 'uporabniki', component: UporabnikiComponent },
+    { path: 'uporabniki/:id', component: UporabnikPodrobnostiComponent },
+    { path: 'dodajuporabnika', component: UporabnikiDodajComponent },
+    { path: '**', redirectTo: '/uporabniki', pathMatch: 'full' }
+];
+@NgModule({
+imports: [RouterModule.forRoot(routes)],
+exports: [RouterModule]
+})
+export class AppRoutingModule { }
+```
+
+## Angular storitve
+Pod storitve štejemo vse vire, ki jih aplikacija za svoje delovanje potrebuje, tipično so to razredi z jasno definiranim namenom.  V komponentah implementiramo samo iteracijo z uporabnikom, programsko logiko pa v obliki storitve. *Primeri storitev so lahko: beleženje dnevnikov, dostop do spletnih storitev, dostop do REST virov,...*.
+
+Razrede storitev se dekorira z dekoratorjem **_Injectable_**, ki nam pove, da je razred lahko uporabljen preko vstavljanja odvisnosti. Le ta ni obvezen, ko ima razred druge dekoratorje in/ali nima razred nobene odvisnoti.
+
+# Advanced Message Queuing Protocol (AMQP)
+
+AMPQP je aplikacijski protokol za MOM (message-oriented meddleware), njegove glavne značilnosti so, da je sporočilno usmerjen z različnimi načini usmerjanja sporočil (ponint-to-point, publish and subscribe) z zanesljivo dostavo sporočil (največ enkrat *at-most-once*, najmanj enkrat *at-least-once*, točno enkrat *exactly-once*).
+
+Različne implementacije AMQP protokola so med seboj kompatibilne. AMQP specifizira format podatkov, ki se prenašajo po omrežju.
+
+Sporočila se izmenjujejo med vozlišči *nodes*, kjer je poseben tip vmesno vozlišče *broker*, ki prejema sporočila od pošiljateljev in jih posreduje prejemnikom. Vmesno vozlišče je sestavljeno iz:
+*   **izmenjevalca**, ki prejema in usmerja sporočila glede na pravila
+*   **vrsta**, ki hrani sporočila
+
+Vmesno vozlišče lahko dostavi sporočila prejemnikom *push* ali pa jih prejemniki sami prenesejo *fetch/pull*.
+
+## Podpora različnim tipom izmenjave sporočil
+**Direktna izmenjava (direct exchange)**
+*   vrste so na izmenjevalce povezane z usmerjevalnimi ključi
+*   sporočilo je usmerjeno do vrste, če se njegov usmerjevalni ključ ujema z usmerjevalnim ključem vrste
+
+**Razpršena izmenjava (fanout exchange)**
+*   sporočilo je usmerjeno na vse naročene vrste, ne glede na usmerjevalni ključ
+
+**Izmenjava glede na temo (topic exchange)**
+*   vrste so na izmenjevalce povezane z vzorcem
+*   sporočilo je usmerjeno do vrste, če se njegov usmerjevalni ključ ujema z definiranim vzorcem vrste
+*   podpira vzorec *publish and subscribe*
+
+**Izmenjava z uporabo glav sporočil**
+*   namesto usmerjevalnih ključev se za usmerjanje uporabljajo atributi glave sporočil
+
+
+# Sporočilni sistemi, JMS in MDB
+
+## Sporočilni sistemi
+
+Sporočilni sistemi omogočajo asihron način komunikacije med enotami sistema. Uporaba takih sistemov je smiselna, ko ne zahtevamo istočasne komunikacije med prejemniki in pošiljatelji, ko potrebujemo zanesljiv odgovor (brez časovne omejitve), ko hočemo zasnovati sistem, ki je šibko skoplen ali komuniciramo med aplikacijami in sistemi na različnih platformah.
+
+Za posredovanje takšnih sporočil skrbijo MOM sistemi (message-oriented middleware)..
+
+## Java Message Service (JMS)
+
+JMS je Java EE API, ki skrbi za komunikacijo s sitemi MOM. JMS sestavljajo:
+*   **JMS ponudnik** - implementira JMS vmesnike in skrbi za povezave z ustreznim MOM sistemom
+*   **JMS odjemalci** so programi ali komponente, ki sprejemajo ali pošiljajo sporočila. Katerakoli Java EE komponenta je lahko JMS odjemalec.
+*   **sporočila** so objekti, ki se prenašajo med JMS odjemalci
+*   **administrirani objekti** so objekti, ki jih administrator ustvari z uporabo odjemalcev. To do predvemcilji za sporočila in tovarne povezav, ki zahtevajo konfiguracijo glede na lokacijo namestitve aplikacije
+
+### Vrste pošiljanja sporočil
+#### Point-to-Point (PTP)
+Vsako sporočilo ima samo enega naslovnika. Sporočila se nalagajo v FIFO vrsto, kjer čakajo na dostavo. Ko pošiljatelj pošlje sporočilo, ni nujno, da prejemnik obstaja. Ko prejemnik prejme sporočilo mora prejem potrditi.
+
+![](./pics/jma001.png)
+
+#### Publish/subscribe
+Sporočilo je lahko dostavljeno večim prejemnikom, ki se morajo za sprejemanje naročiti na temo. Naročniki ne dobijo sporočila, ki so bila poslana pred prijavo, vendar lahko sporočila počakajo, da bo naročnik na voljo (ti. trajni naročniki).
+
+![](./pics/jma002.png)
+
+### Prejemanje sporočil
+
+Čeprav je prejemanje sporočil samo po sebi asihrono, JMS implementira **sinhron** (kjer prejemnik eksplicitno zahteva prejemanje sporočil s klicem `receive()`. Klic metode ustvai izvajanje dokler ne prisme sporočilo ali se zgodi timeout) in **asihron** (kjer prejemnik registrira *message litener* metodo, ki se avtomatsko pokliče, ko prispe novo sporočilo) način delovanja.
+
+### JMS arhitektura
+Osnovna JMS aplikacija je sestavljena iz:
+*   administriranih objektov
+*   povezav
+*   sej
+*   pošiljateljev
+*   prejemnikov
+
+![](./pics/jma003.png)
+
+Poleg razredov, specifičnih za posamezno vrsto komunikacije, imamo pri JMS generične razrede, ki omogočajo skupen vmesnik, ne glede na vrsto komunikacije
+
+|Generični|*Point-to-Point*|*Publish-Subscribe*|
+|---|---|---|
+|Destination|Queue|Topic|
+|ConnectionFactory|QueeueConnectionFactory|TopicConnectionFactory|
+|Connection|QueueConnection|TopicConnection|
+|Session|QueueSession|TopicSession|
+|MessageConsumer|QueueReceiver|TopicSubscriber|
+|MessageProducer|QueueSender|TopicPublisher|
+
+### Administrirani objekti
+#### Tovarne povezav
+Tovarne povezav so objekti s katerimi JMS odjemalec ustvari povezavo do ponudnika MOM in so del administriranih objektov, ki obsegajo konfiguracijo parametrov in jih nastavi administrator.
+
+```java
+// pridobimo tovarno povezav iz JNDI
+ConnectionFactory connectionFactory = 
+    (ConnectionFactory)context.lookup("jms/tovarnapovezav");
+private static ConnectionFactory connectionFactory;
+```
+
+## Cilji
+Cilji so objekti s katerimi JMS odjemalci določijo prejemnike sporočil. Pri PTP so cilji vrste, pri *publish/subscribe* pa teme.
+
+```java
+// pridobi temo iz JNDI
+Topic tema = (Topic)context.lookup("jms/tema");
+// pridobi vrsto iz JNDI
+Queue vrsta = (Queue)context.lookup("jms/vrsta");
+```
+
+## Povezave
+Komunikacija z JMS ponudnikom je predstavljena s povezavami, kjer povezavo uporabimo za vzpostavitev nove seje.
+
+Pred zaključkom aplikacije moramo povezavo zapreti `close()`, da sprostimo vire pri prejemniku.
+
+## Seje
+Seja je enoten kontekst za sprejemanje in pošiljanje sporočil in jo uporabljamo za ustvarjanje pošiljateljev, prejemnikov, sporočil, pregledovalnikov vrst in začasnih vrst ter tem. Implementiramo jih z vmesnikom `Session`.
+
+V seji tudi izberemo ali želimo avtomatsko potrjevanje sporočil ali potrjevanje s transakcijami.
+
+```java
+//brez transakcij, avtomatsko
+Session session = connection.createSession(
+    false,
+    Session.AUTO_ACKOWLEDGE
+);
+
+//s transkacijami
+Session session = connection.createSession(
+    true,
+    Session.SESSION_TRANSACTED
+);
+```
+
+### Pošiljatelji
+S pomočjo seje ustvarjamo pošiljatelje, s katerimi pošiljamo sporočila (razred `MessageProducer`).
+
+```java
+// posiljatelj za doloceno temo
+MessageProducer posiljatelj = session.createProducer(tema);
+// posiljatelj brez teme
+MessageProducer posiljatelj = session.createProducer(null);
+```
+
+### Prejemniki
+Prejemnike predstavljajo objekti `MessageConsumer`, ti se povežejo na določen cilj, temo ali vrsto in potem z nje prejemajo sporočila.
+
+```java
+MessageConsumer prejemnik = session.createConsumer(tema);
+```
+
+### Sporočila
+Med prejemniki in pošiljatelji se prenašajo sporočila, ki so predstavljena z vmesnikom `Message`, ta so sestavljena iz:
+*   **glave**, ki vsebuje podatke za identifikacijo in usmerjanje sporočil (obvezni del)
+*   **lastnosti**, ki niso del glave
+*   **telesa**, ki nosi vsebino sporočila
+
+```java
+//ustvarjanje sporočila
+TextMessage sporocilo = session.createTextMessage();
+sporocilo.setText("vsebina");
+
+//ustvarjanje sporočila z objektom
+ObjectMessage objektnosporocilo = session.createObjectMessage();
+objektnosporocilo.setObject(objekt);
+```
+![](./pics/jma004.png)
+
+#### Sporočila -glave
+Vsako sporočilo, ne glede na vrsto, nosi v glavi informacije, ki omogočajo identifikacijo in usmerjanje, večina polj se nastavi samodejno.
+
+#### Sporočila - lastnosti
+Lastnosti sporočila so dodpatne lastnosti, ki jih nastavimo pri pošiljanju. Shranjene so kot preslikava parov imen in vrednosti (string:katerakoli primitavna ali string).
+```java
+setIntProperty(ime, vrednost);
+setStringProperty(ime, vrednost);
+```
+
+#### Sporočila - telo
+Sporočila lahko v telesu nosijo različnp vesbino, zato so sestavljena iz različnih razredov.
+
+|Razred|Telo sporočila|
+|---|---|
+|`Message`|ni telesa, samo glava in lastnosti|
+|`TextMessage`|besedilo tipa `String`|
+|`MapMessage`|pari ime-vrednost|
+|`ByteMessage`|tok byte-ov brez posebne oblike|
+|`StreamMessage`|tok vrednosti primitivnih tipov|
+|`ObjectMessage`|Objekt, ki implementira `Serializable`|
+
+### Pošiljanje sporočil
+Sporočilo pošljemo prek pošiljatelja, pri *point-to-point* z `send()`, pri *publish and subscribe* pa `publish()`.
+
+```java
+MessageProducer posiljatelj = seja.createProducer(cilj);
+
+TextMessage sporocilo = seja.createTextMessage();
+
+sporocilo.setFloatProperty("znesek", 55.0f);
+sporocilo.setText("Nova transakcija");
+
+posiljatelj.send(sporocilo);
+```
+
+#### Sinhrono prejemanje
+```java
+//ustvari prejemnika
+MessageConsumer prejemnik = seja.createConsumer(cilj);
+
+//zacni prejemanje sporocil
+povezava.start();
+
+//pocakaj na sporocilo in ga sprejmi (cakaj max 5sekund)
+Message sporocilo = prejemnik.receive(5000);
+```
+
+#### Asinhrono prejemanje
+```java
+//deklariramo poslusalca
+class PoslusalecSporocil implements MessageListener {
+    //onMessage se samodejno poklice, ko prispe novo sporocilo
+    public void onMessage(Message sporocilo) {
+        System.out.println("Sporočilo sprejeto");
+    }
+}
+
+//ustvari prejemnika
+MessageConsumer prejemnik = seja.createConsumer(cilj);
+//doloci poslusalca
+prejemnik.setMessageListener(new PoslusalecSporocil());
+//zacni prejemanje sporocil
+povezava.start();
+```
+
+## Sporočilna zrna
+Sporočilna zrna so posebna vrsta zrn, ki sprejemajo sporočila iz vrst in tem. V njih ne poganjamo poslovne logike, ampak samo obdelujemo sporočila.
+
+```java
+// zrno je prijavljeno na temo "jms/novaTransakcija"
+@MessageDriven(mappedName = "jms/novaTransakcija")
+public class SprejemnikTransakcij implements MessageListener {
+    //metoda onMessage se pokliče, ko prispe novo sporocilo na temo
+    public void onMessage(Message sporocilo) {
+        //obdelava sporocila
+    }
+}
+```
+
+## JMS 2.0
+JMS 2.0 definira nov API, za uporabo JMS so predvideni:
+*   `JMSContext` - enkapsulira `Connection`, `Session` in `MessageProducer` in se ga kreira prek `ConnectionFactory`
+*   `JMSProducer` - objekt za pošiljanje sporočil
+*   `JMSConsumer` - objekt za prejemanje sporočil
+
+### `JMSContext`
+Pridobimo ga lahko preko tovarne povezav
+```java
+@Resource(lookup = "java:global/jms/spletna_trgovina_cf")
+ConnectionFactory tovarnaPovezav;
+
+@Resource(lookup = "java:global/jms/spletna_trgovina_vrsta")
+Queue vrsta;
+
+public void poslji(String payload) {
+    try (JMSContext context = connectionFactory.createContext();){
+        context.createProducer().send(vrsta, tovarnaPovezav);
+    } catch (JMSRuntimeException ex) { //Obravnavaj napako }
+}
+```
+
+### Druge novosti v JMS 2.0
+**Dostava z zakasnitvijo**
+*   JMSProducer in MessageProducer implementirata metodo `setDeliveryDelay()` za dostavo sporočila z zakasnitvijo
+
+**Asinhrono pošiljanje**
+*   ob pošiljanju sporočila se metoda takoj zaključi in ne blokira dokler strežnik ne potrdi prejema
+*   metodi za pošiljanje `send()` posledično lahko dodamo še poslušalca za asinhroni povratni klic
+
+**Boljše upravljanje ti _Poison_ sporočil** - obvezna uporaba lastnosti `JMSXDeliveryCount`
+
+**Več odjemalcev na eno naročnino Teme** - omogoča skalabilno prejemanje sporočil s teme
+
+**Privzeta tovarna povezav**
 
 
 # Medklici
