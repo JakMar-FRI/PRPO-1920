@@ -15,7 +15,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <kumuluzee.version>3.5.0</kumuluzee.version>
-        <postgresql.version>42.2.8</postgresql.version>
+        <postgresql.version>42.2.25</postgresql.version>
     </properties>
 
     <name>Diplomske teme</name>
